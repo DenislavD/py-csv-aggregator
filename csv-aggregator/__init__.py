@@ -1,27 +1,54 @@
 import argparse
 import os
+import sys
+import logging
+import logging.handlers
+
+logging.basicConfig(
+	handlers=[
+		logging.StreamHandler(sys.stderr), 
+		logging.handlers.TimedRotatingFileHandler('myapp.log', 'midnight'),
+	], 
+	level=logging.DEBUG,
+	#format='%(asctime)s: %(levelname)s@%(filename)s~%(lineno)d: %(message)s',
+	format='%(asctime)s [%(levelname)s]: %(message)s',
+	datefmt='%m/%d/%Y %H:%M:%S',
+)
 
 from core import DailyData
 
-# Argument parsing
-parser = argparse.ArgumentParser(
-	prog='CSV Aggregator',
-	description='Ingests data from multiple CSV files and provides summaries.',
-	epilog='We hope you enjoy it!',)
+log = logging.getLogger(__name__)
 
-parser.add_argument('path', nargs='+') # 1+ -> list
-parser.add_argument('-a', '--agg-by', help='Aggregate by', type=int)
-args = parser.parse_args()
+def main():
+	log.info('Started app')
+	breakpoint() # commands: w, s, n, unt [lineno], r, c, pp (evaluate)
 
-print('Path:', args.path, ' Agg:', args.agg_by)
+	# Argument parsing
+	parser = argparse.ArgumentParser(
+		prog='CSV Aggregator',
+		description='Ingests data from multiple CSV files and provides summaries.',
+		epilog='I hope you enjoy it!',
+	)
 
-# @TODO add file path here
-base_path = os.path.join(os.path.dirname(__file__), 'data') # , '2017'
-base_file = os.path.join(base_path, '2017-06 Journal.csv') # INFO 2023.csv
-print('Path:', base_file) # os.path.isfile(fname)
+	parser.add_argument('path', nargs='+') # 1+ -> list
+	parser.add_argument('-a', '--agg-by', help='Aggregate by', type=int)
+	args = parser.parse_args()
 
-data = DailyData()
-data.ingest_file(base_file)
+	print('Path:', args.path, ' Agg:', args.agg_by)
 
-print('Rows:', len(data.rows))
-# @ TODO: Add logging next
+	# @TODO add file path here
+	base_path = os.path.join(os.path.dirname(__file__), 'data') # , '2017'
+	base_file = os.path.join(base_path, args.path[0]) # INFO 2023.csv
+	print('Path:', base_file) # os.path.isfile(fname)
+
+	data = DailyData()
+	data.ingest_file(base_file)
+
+	print('Rows:', len(data.rows))
+
+	# run with: py __init__.py "2017-06 Journal.csv"
+
+
+
+if __name__ == '__main__':
+	main()

@@ -1,4 +1,7 @@
+import logging
 import csv
+
+log = logging.getLogger(__name__)
 
 class DailyData:
 	def __init__(self):
@@ -21,16 +24,15 @@ class DailyData:
 						headers = True
 						self.rows.append(row)
 		except FileNotFoundError:
-			print(f'File {file} does not exist.')
+			log.error(f'File "{file}" does not exist.')
 		except csv.Error as e:
 			raise SystemExit(f'CSV error in {filename}, line {reader.line_num}: {e}')
+
 
 	def match_headers(self):
 		...
 		# headers
 		# for r in data[:5]:
 		# 	print('Len', len(r), r)
-
-print('syntax check OK')
 
 # Data normalization
