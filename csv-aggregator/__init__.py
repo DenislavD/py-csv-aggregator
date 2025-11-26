@@ -15,13 +15,13 @@ logging.basicConfig(
 	datefmt='%m/%d/%Y %H:%M:%S',
 )
 
-from core import DailyData
+from core import Extractor
 
 log = logging.getLogger(__name__)
 
 def main():
-	log.info('Started app')
-	breakpoint() # commands: w, s, n, unt [lineno], r, c, pp (evaluate)
+	#log.info('Started app')
+	#breakpoint() # commands: w, s, n, unt [lineno], r, c, pp (evaluate)
 
 	# Argument parsing
 	parser = argparse.ArgumentParser(
@@ -41,14 +41,15 @@ def main():
 	base_file = os.path.join(base_path, args.path[0]) # INFO 2023.csv
 	print('Path:', base_file) # os.path.isfile(fname)
 
-	data = DailyData()
-	data.ingest_file(base_file)
+	# Extractor.parse_paths
+	Extractor.ingest_file(base_file)
 
-	print('Rows:', len(data.rows))
+	#print('Rows:', len(Extractor.data))
 
-	# run with: py __init__.py "2017-06 Journal.csv"
+	
 
 
 
 if __name__ == '__main__':
 	main()
+	# run with: py __init__.py "2017-06 Journal.csv"

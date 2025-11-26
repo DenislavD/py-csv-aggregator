@@ -20,11 +20,12 @@ Complexity writeup: include time/space complexity for main aggregation path (e.g
 Acceptance: README + example, pip install -e ., csv-agg --help, tests pass.
 
 <h5>Current progress:</h5>
-Argparse + one csv ingest
+Argparse + one csv ingest, logging, data format finalized, </br>
+base data extraction
 
 </br>
 
-Run with:
+<h5>Run with:</h5>
 <code>py csv-aggregator/__init__.py filenames [options]</code>
 
 
