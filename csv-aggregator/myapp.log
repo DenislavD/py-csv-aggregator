@@ -1,7 +1,25 @@
-11/26/2025 12:48:40 [INFO]: Started app
-11/26/2025 12:49:24 [INFO]: Started app
-11/26/2025 12:53:51 [INFO]: Started app
-11/26/2025 12:54:06 [INFO]: Started app
-11/26/2025 17:48:59 [INFO]: File "D:\Programming\python\Learning\projects\csv-aggregator\csv-aggregator\data\INFO 2023.csv" ingested.
-11/26/2025 17:57:05 [INFO]: File "INFO 2023.csv" ingested.
-11/26/2025 17:57:26 [INFO]: File "2017-06 Journal.csv" ingested.
+11/27/2025 11:05:33 [INFO]: File "2017-06 Journal.csv" ingested.
+11/27/2025 11:05:42 [INFO]: File "INFO 2023.csv" ingested.
+11/27/2025 11:07:54 [INFO]: File "INFO 2023.csv" ingested.
+11/27/2025 11:08:23 [INFO]: File "INFO 2023.csv" ingested.
+11/27/2025 11:46:17 [INFO]: File "2017-06 Journal.csv" ingested.
+11/27/2025 11:46:52 [INFO]: File "2017-06 Journal.csv" ingested.
+11/27/2025 11:53:59 [INFO]: File "2017-06 Journal.csv" ingested.
+11/27/2025 11:54:51 [INFO]: File "2017-06 Journal.csv" ingested.
+11/27/2025 11:55:44 [INFO]: File "2017-06 Journal.csv" ingested.
+11/27/2025 11:56:14 [INFO]: File "INFO 2023.csv" ingested.
+11/27/2025 12:34:02 [INFO]: File "INFO 2023.csv" ingested.
+11/27/2025 12:34:05 [INFO]: File "2017-06 Journal.csv" ingested.
+11/27/2025 16:22:35 [INFO]: File "2017-06 Journal.csv" ingested.
+11/27/2025 16:26:23 [INFO]: File "2017-06 Journal.csv" ingested.
+11/27/2025 16:26:23 [INFO]: 30 total rows gathered.
+11/27/2025 16:26:59 [INFO]: File "2017-06 Journal.csv" ingested.
+11/27/2025 16:26:59 [INFO]: 30 total rows gathered.
+11/27/2025 16:27:17 [INFO]: File "2017-06 Journal.csv" ingested.
+11/27/2025 16:27:17 [INFO]: 30 total rows gathered.
+11/27/2025 16:27:57 [INFO]: File "2017-06 Journal.csv" ingested.
+11/27/2025 16:27:57 [INFO]: 30 total rows gathered.
+11/27/2025 16:28:05 [INFO]: File "2017-06 Journal.csv" ingested.
+11/27/2025 16:28:05 [INFO]: 30 total rows gathered.
+11/27/2025 16:45:05 [INFO]: ---- end walk -----
+11/27/2025 16:45:05 [INFO]: ---- end walk -----

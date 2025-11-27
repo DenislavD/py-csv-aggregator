@@ -1,6 +1,6 @@
 import logging
-import csv
 import os
+import csv
 from datetime import datetime, time
 from collections import namedtuple
 
@@ -10,21 +10,26 @@ import pprint
 log = logging.getLogger(__name__)
 
 class Extractor:
-	data = []
-	final_headers = 'day, trades, result, note, begin' # (hh:mm)
-	DataRow = namedtuple('DataRow', final_headers)
+	data = [] # holds cleaned data for all files
+	FINAL_HEADERS = 'day, trades, result, note, begin' # (hh:mm)
+	DataRow = namedtuple('DataRow', FINAL_HEADERS)
 
 	@classmethod
-	def ingest_dir(cls, ):
-		...
+	def process(cls, file):
+		rows = cls._ingest_file(file)
+		mapping = cls._match_headers(rows)
+		cls.data.extend(cls._load_data(mapping, rows))
+
+		#pprint.pp(cls.data[:3])
+
 
 	@classmethod
-	def ingest_file(cls, file): # CSV Ingestion
+	def _ingest_file(cls, file): # CSV Ingestion
+		rows = []
 		try:
 			with open(file, 'r', newline='', encoding='utf-8-sig') as csv_file:
 				reader = csv.reader(csv_file)
 				headers = False
-				rows = []
 				for row in reader:
 					# skip first X rows that can be annotations
 					if row[0] and (headers or 'Day' in row or '# trades' in row):
@@ -36,10 +41,11 @@ class Extractor:
 			raise SystemExit(f'CSV error in {filename}, line {reader.line_num}: {e}')
 
 		log.info(f'File "{os.path.split(file)[1]}" ingested.')
-		cls.match_headers(rows)
+		return rows
+
 
 	@classmethod
-	def match_headers(cls, rows):
+	def _match_headers(cls, rows):
 		mapping = {
 			'day': None,
 			'trades': None,
@@ -53,22 +59,22 @@ class Extractor:
 					if mapping[search_term] == None: # don't overwrite if already found
 						mapping[search_term] = k
 
-		cls.arrange_data(mapping, rows)
+		return mapping
+
 
 	@classmethod
-	def arrange_data(cls, mapping, rows):
+	def _load_data(cls, mapping, rows):
+		_data = []
 		for col in rows[1:]:
-			cls.data.append(cls.DataRow(
+			_data.append(cls.DataRow(
 				cls.parse_date(col[mapping['day']]),
 				int(col[mapping['trades']] or 0),
 				int(col[mapping['balance']] or 0),
 				col[mapping['note']],
 				cls.parse_time(col[mapping['begin']]) if mapping['begin'] else None,
 			))
-			# *[col[mapping[key]] for key in mapping.keys()]
-			# *[col[mapping[key]] if v != None else 50 for key, v in mapping.items()] 
+		return _data
 
-		#pprint.pp(cls.data[:10])
 
 	# Data normalization methods
 	@classmethod
@@ -80,14 +86,15 @@ class Extractor:
 			if len(parts[2]) == 2:
 				parts[2] = '20' + parts[2]
 			parts.reverse()
-			d = datetime(*list(map(int, parts)))
+			d = datetime(*map(int, parts))
 		finally:
 			return d
+
 
 	@classmethod
 	def parse_time(cls, timestr) -> time:
 		try:
-			t = time(*list(map(int, timestr.split(':'))))
+			t = time(*map(int, timestr.split(':')))
 		except ValueError:
 			t = None
 		finally:
