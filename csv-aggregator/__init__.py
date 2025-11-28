@@ -3,6 +3,8 @@ import os
 import sys
 import logging
 import logging.handlers
+# dev only
+import pprint
 
 logging.basicConfig(
 	handlers=[
@@ -15,7 +17,8 @@ logging.basicConfig(
 	datefmt='%m/%d/%Y %H:%M:%S',
 )
 
-from core import Extractor
+from extractor import Extractor
+from transformer import Transformer
 
 log = logging.getLogger(__name__)
 
@@ -35,7 +38,7 @@ def main():
 	args = parser.parse_args()
 	log.info(f'Path: {args.path}  Agg: {args.agg_by}')
 
-	# Path parsing and dir loop
+	# Path parsing and collecting files
 	file_queue = set()
 	for cur_path in args.path:
 		# allow lazily not supplying data\ as folder
@@ -49,18 +52,12 @@ def main():
 	if not file_queue:
 		sys.exit('Files couldn\'t be found.')
 	for filepath in file_queue:
-		print(filepath)
-		#Extractor.process(filepath)
+		Extractor.process(filepath)
 
-	print('---- end walk -----')
 	log.info(f'{len(Extractor.data)} total rows gathered.')
-	exit()
-	base_path = os.path.join(os.path.dirname(__file__), 'data') # , '2017'
-	base_file = os.path.join(base_path, args.path[0]) # INFO 2023.csv
-	print('Path:', base_file) # os.path.isfile(fname)
 
+	Transformer.dump_raw(Extractor.data)
 
-	
 
 def get_csv_in_dir(directory) -> list:
 	files = []
