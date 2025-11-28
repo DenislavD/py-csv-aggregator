@@ -3,6 +3,7 @@ import os
 import sys
 import logging
 import logging.handlers
+from datetime import date
 # dev only
 import pprint
 
@@ -24,19 +25,25 @@ log = logging.getLogger(__name__)
 
 def main():
 	#log.info('Started app')
-	#breakpoint() # commands: w, s, n, unt [lineno], r, c, pp (evaluate)
+	#breakpoint() # commands: w (stack trace), d/u, s(tep), n(ext), 
+	#unt [lineno], r(eturn - step out), c(ontinue), pp (evaluate expr)
 
 	# Argument parsing
 	parser = argparse.ArgumentParser(
 		prog='CSV Aggregator',
-		description='Ingests data from multiple CSV files and provides summaries.',
+		description="""Ingests data from multiple CSV files and provides summaries.\n
+			Available columns: day:date, trades:int, result:int, note:str, begin:time""",
 		epilog='I hope you enjoy it!',
 	)
 
 	parser.add_argument('path', nargs='+') # 1+ -> list
-	parser.add_argument('-a', '--agg-by', help='Aggregate by', type=int)
+	parser.add_argument('-a', '--agg-by', help='Aggregate trades and result', choices=['sum', 'mean', 'count', ])
+	parser.add_argument('-g', '--group-by', help='Group by', choices=['year', 'month', 'weekday', ])
+	parser.add_argument('-t', '--top-n', help='Top n results', type=int)
+	parser.add_argument('-s', '--since', help='Since yyyy-mm-dd', type=date.fromisoformat)
+	parser.add_argument('-u', '--until', help='Until yyyy-mm-dd', type=date.fromisoformat)
 	args = parser.parse_args()
-	log.info(f'Path: {args.path}  Agg: {args.agg_by}')
+	#log.info(f'Args: {args}')
 
 	# Path parsing and collecting files
 	file_queue = set()
@@ -55,8 +62,12 @@ def main():
 		Extractor.process(filepath)
 
 	log.info(f'{len(Extractor.data)} total rows gathered.')
+	#Transformer.dump_raw(Extractor.data)
 
-	Transformer.dump_raw(Extractor.data)
+	# Data processing
+	transformer = Transformer(**vars(args)) # args is a Namespace
+	pprint.pp(vars(transformer))
+
 
 
 def get_csv_in_dir(directory) -> list:
@@ -71,4 +82,5 @@ def get_csv_in_dir(directory) -> list:
 
 if __name__ == '__main__':
 	main()
-	# run with: py __init__.py "2017-06 Journal.csv"
+	# run with:     py __init__.py "2017-06 Journal.csv"
+	# Full example: py __init__.py data\2017 -a sum -g year -t 5 -s 2017-05-01 -u 2017-12-31

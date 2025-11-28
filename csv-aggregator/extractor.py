@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 class Extractor:
 	data = [] # holds cleaned data for all files
-	FINAL_HEADERS = 'day, trades, result, note, begin' # (hh:mm)
+	FINAL_HEADERS = ['day', 'trades', 'result', 'note', 'begin'] # (hh:mm)
 	DataRow = namedtuple('DataRow', FINAL_HEADERS)
 	_last_date = None
 
