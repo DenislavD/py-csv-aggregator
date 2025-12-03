@@ -37,9 +37,9 @@ def main():
 	)
 
 	parser.add_argument('path', nargs='+') # 1+ -> list
-	parser.add_argument('-a', '--agg-by', help='Aggregate trades and result', choices=['sum', 'mean', 'count', ])
+	parser.add_argument('-a', '--agg-by', help='Aggregate trades and result', choices=['sum', 'mean', 'winlose', ])
 	parser.add_argument('-g', '--group-by', help='Group by', choices=['year', 'month', 'weekday', ])
-	parser.add_argument('-t', '--top-n', help='Top n results', type=int)
+	parser.add_argument('-t', '--top-n', help='Top n or -n results by day', type=int)
 	parser.add_argument('-s', '--since', help='Since yyyy-mm-dd', type=date.fromisoformat)
 	parser.add_argument('-u', '--until', help='Until yyyy-mm-dd', type=date.fromisoformat)
 	args = parser.parse_args()
@@ -62,6 +62,7 @@ def main():
 		Extractor.process(filepath)
 
 	log.info(f'{len(Extractor.data)} total rows gathered.')
+	#pprint.pp(Extractor.data[:5])
 	#Transformer.dump_raw(Extractor.data)
 
 	# Data processing
@@ -84,3 +85,4 @@ if __name__ == '__main__':
 	main()
 	# run with:     py __init__.py "2017-06 Journal.csv"
 	# Full example: py __init__.py data\2017 -a sum -g year -t 5 -s 2017-05-01 -u 2017-12-31
+	# py __init__.py "2017-06 Journal.csv" -a sum -g year -t 5 -s 2017-05-01 -u 2017-12-31

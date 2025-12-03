@@ -1,7 +1,7 @@
 import logging
 import os
 import csv
-from datetime import datetime, time, timedelta
+from datetime import date, time, timedelta
 from collections import namedtuple
 
 log = logging.getLogger(__name__)
@@ -57,13 +57,14 @@ class Extractor:
 	def _load_data(cls, mapping, rows):
 		_data = []
 		for col in rows[1:]:
-			_data.append(cls.DataRow(
-				cls.parse_date(col[mapping['day']]),
-				int(col[mapping['trades']] or 0),
-				int(col[mapping['balance']] or 0),
-				col[mapping['note']],
-				cls.parse_time(col[mapping['begin']]) if mapping['begin'] else None,
-			))
+			if col[mapping['trades']]: # drop weekends and non-trading days
+				_data.append(cls.DataRow(
+					cls.parse_date(col[mapping['day']]),
+					int(col[mapping['trades']]),
+					int(col[mapping['balance']]),
+					col[mapping['note']],
+					cls.parse_time(col[mapping['begin']]) if mapping['begin'] else None,
+				))
 		return _data
 
 
@@ -74,7 +75,7 @@ class Extractor:
 
 	# Data normalization methods
 	@classmethod
-	def parse_date(cls, datestr) -> datetime:
+	def parse_date(cls, datestr) -> date:
 		# target is datetime.strptime(datestr, '%d-%m-%Y'), but
 		# default is 31-02-17 , could be only 29-02 as well, so:
 		parts = datestr.split('-')
@@ -87,7 +88,7 @@ class Extractor:
 		if len(parts[2]) != 4:
 			parts[2] = cls._last_date.year # fallback to last seen year
 		parts.reverse()
-		cls._last_date = datetime(*map(int, parts))
+		cls._last_date = date(*map(int, parts))
 		return cls._last_date
 
 

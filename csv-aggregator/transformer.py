@@ -1,40 +1,93 @@
 import logging
 import csv
 from datetime import date
+from itertools import groupby
 import pprint
 
 log = logging.getLogger(__name__)
 
+# dev only
+from collections import namedtuple
+DataRow = namedtuple('DataRow', ['day', 'trades', 'result', 'note', 'begin'])
+from extractor import Extractor
 
 class Transformer:
 	def __init__(self, **args):
-		# @TODO not sure this is needed
-		self.agg_by = args['agg_by']
-		self.group_by = args['group_by']
+		
+		self.group_by = args['group_by'] # done
 		self.top_n = args['top_n']
 		self.since = args['since']
 		self.until = args['until']
 
+		self.raw = [
+			DataRow(day=date(2017, 6, 30), trades=1, result=-15, note='missed trades before 18:00 . Need to be ready to ACT', begin=None),                                
+			DataRow(day=date(2027, 6, 2), trades=5, result=100, note='no market data', begin=None),                                                                         
+			DataRow(day=date(2015, 6, 13), trades=1, result=20, note='', begin=None), 
+			DataRow(day=date(2017, 6, 3), trades=0, result=0, note='', begin=None),                                                                                    
+			DataRow(day=date(2015, 6, 4), trades=0, result=0, note='', begin=None),                                                                                    
+			DataRow(day=date(2015, 6, 5), trades=1, result=-5, note="first trading day after 3 days of rest, was careful. Had", begin=None)
+		]
+		# Extractor.data
 
-	def _aggregate():
-		...
-
-	def _groupby():
+		# this will be in init
+		# grouping aggregate route
 		if self.group_by:
-			...
+			self.agg_by = args.get('agg_by', 'sum')
+			groups = self._group()
+			#pprint.pp(groups)
+
+			self._aggregate(groups)
 
 
-	# @property
-	# def group_by(self):
-	# 	return self._group_by
-	# @group_by.setter
-	# def group_by(self, arg):
-	# 	if arg not in ['year', 'month', 'weekday', None]:
-	# 		log.error('Grouping can be by: year, month or weekday')
-	# 		self._group_by = input('Please provide grouping criteria: ')
-	# 	else:
-	# 		self._group_by = arg
-	
+	def _group(self):
+		def grouper(elem):
+			match self.group_by:
+				case 'year':
+					return elem.day.year
+				case 'month':
+					return elem.day.strftime('%Y-%m')
+				case 'weekday':
+					return elem.day.strftime('%A') # .isoweekday()
+
+		self.raw.sort(key=grouper)
+
+		groups = []
+		for key, group in groupby(self.raw, key=grouper):
+			# groups.append((key, [*group]))
+			# groups.append(Group(key, *zip(*map(attrgetter('trades', 'result', 'begin'), group))))
+
+			# transpose number sequences for easier aggregation
+			trades, results, begins = zip(*[(row.trades, row.result, row.begin) for row in group])
+			groups.append({
+				'name': key,
+				'data_series': {
+					'trades': trades,
+					'results': results,
+					'begins': begins,
+				},
+				'outputs': {},
+				})
+		return groups
+
+
+	# use cached_property from functools :)
+	def _aggregate(self, groups):
+		def aggregator(results):
+			match self.agg_by:
+				case 'mean':
+					return round(sum(results) / len(results), 1)
+				case 'winlose':
+					return f'{len([*filter(lambda x: x >= 0, results)]) / len(results):.1%}'
+				case _:
+					return sum(results)
+
+		for group in groups:
+			group['outputs']['days-count'] = len(group['data_series']['trades'])
+			group['outputs']['trades-sum'] = sum(group['data_series']['trades'])
+			group['outputs']['trades-mean'] = round(group['outputs']['trades-sum'] / group['outputs']['days-count'], 1)
+			group['outputs'][f'results-{self.agg_by}'] = aggregator(group['data_series']['results'])
+
+		pprint.pp(groups)
 
 
 	def dump_raw(data):
@@ -45,7 +98,7 @@ class Transformer:
 
 
 # dev area
-a = Transformer(agg_by='sum', group_by='year', top_n=None, since=date(2017, 5, 1), until=date(2017, 12, 31))
+a = Transformer(agg_by='winlose', group_by='month', top_n=None, since=date(2017, 5, 1), until=date(2017, 12, 31))
 
-pprint.pp(vars(a))
+#pprint.pp(vars(a))
 
