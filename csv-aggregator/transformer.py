@@ -7,48 +7,28 @@ import pprint
 log = logging.getLogger(__name__)
 
 # dev only
-from collections import namedtuple
-DataRow = namedtuple('DataRow', ['day', 'trades', 'result', 'note', 'begin'])
-from extractor import Extractor
+# from collections import namedtuple
+# DataRow = namedtuple('DataRow', ['day', 'trades', 'result', 'note', 'begin'])
+# from extractor import Extractor
 
 class Transformer:
-	def __init__(self, **args):
-		
-		self.group_by = args['group_by'] # done
-		self.top_n = args['top_n']
-		self.since = args['since']
-		self.until = args['until']
+	def __init__(self, data):
+		self.rows = data
+		self.groups = []
 
-		self.raw = [
-			DataRow(day=date(2017, 6, 30), trades=1, result=-15, note='missed trades before 18:00 . Need to be ready to ACT', begin=None),                                
-			DataRow(day=date(2027, 6, 2), trades=5, result=100, note='no market data', begin=None),                                                                         
-			DataRow(day=date(2015, 6, 13), trades=1, result=20, note='', begin=None), 
-			DataRow(day=date(2017, 6, 3), trades=0, result=0, note='', begin=None),                                                                                    
-			DataRow(day=date(2015, 6, 4), trades=0, result=0, note='', begin=None),                                                                                    
-			DataRow(day=date(2015, 6, 5), trades=1, result=-5, note="first trading day after 3 days of rest, was careful. Had", begin=None)
-		]
-		# Extractor.data
+		# self.raw = [
+		# 	DataRow(day=date(2017, 6, 30), trades=1, result=-15, note='missed trades before 18:00 . Need to be ready to ACT', begin=None),                                
+		# 	DataRow(day=date(2027, 6, 2), trades=5, result=100, note='no market data', begin=None),                                                                         
+		# 	DataRow(day=date(2015, 6, 13), trades=1, result=20, note='', begin=None), 
+		# 	DataRow(day=date(2017, 6, 3), trades=0, result=0, note='', begin=None),                                                                                    
+		# 	DataRow(day=date(2015, 6, 4), trades=0, result=0, note='', begin=None),                                                                                    
+		# 	DataRow(day=date(2015, 6, 5), trades=1, result=-5, note="first trading day after 3 days of rest, was careful. Had", begin=None)
+		# ]
 
-
-
-		# this will be in init
-		# grouping aggregate route
-		if self.group_by:
-			self.agg_by = args.get('agg_by', 'sum')
-			
-			groups = self.group()
-			self.aggregate(groups)
-
-			filtered = self.filterdate(since=self.since, until=self.until)
-			#pprint.pp(filtered)
-
-			top_n = self.get_top_n_results(self.top_n)
-			pprint.pp(top_n)
-
-	def group(self) -> []:
+	def group(self, group_by) -> object:
 
 		def grouper(elem):
-			match self.group_by:
+			match group_by:
 				case 'year':
 					return elem.day.year
 				case 'month':
@@ -56,10 +36,10 @@ class Transformer:
 				case 'weekday':
 					return elem.day.strftime('%A') # .isoweekday()
 
-		self.raw.sort(key=grouper)
+		self.rows.sort(key=grouper)
 
 		groups = []
-		for key, group in groupby(self.raw, key=grouper):
+		for key, group in groupby(self.rows, key=grouper):
 			# transpose number sequences for easier aggregation
 			trades, results, begins = zip(*[(row.trades, row.result, row.begin) for row in group])
 			groups.append({
@@ -71,14 +51,15 @@ class Transformer:
 				},
 				'outputs': {},
 				})
-		return groups
+		
+		self.groups = groups
+		return self
 
 
-	# use cached_property from functools :)
-	def aggregate(self, groups) -> None:
+	def aggregate(self, agg_by):
 
 		def aggregator(results):
-			match self.agg_by:
+			match agg_by:
 				case 'mean':
 					return round(sum(results) / len(results), 1)
 				case 'winlose':
@@ -86,22 +67,23 @@ class Transformer:
 				case _:
 					return sum(results)
 
-		for group in groups:
+		for group in self.groups:
 			group['outputs']['days-count'] = len(group['data_series']['trades'])
 			group['outputs']['trades-sum'] = sum(group['data_series']['trades'])
 			group['outputs']['trades-mean'] = round(group['outputs']['trades-sum'] / group['outputs']['days-count'], 1)
-			group['outputs'][f'results-{self.agg_by}'] = aggregator(group['data_series']['results'])
+			group['outputs'][f'results-{agg_by}'] = aggregator(group['data_series']['results'])
 
 
 	# init - if since or until call filterdate
-	def filterdate(self, *, since=date.min, until=date.max) -> []:
-		return [row for row in self.raw if row.day >= since and row.day <= until]
+	def filterdate(self, since, until):
+		since = since or date.min
+		until = until or date.max
+		self.rows = [row for row in self.rows if row.day >= since and row.day <= until]
 
 
-	def get_top_n_results(self, n) -> []:
-		print(f'N: {n}')
+	def get_top_n_results(self, n):
 		descending = n >= 0
-		return sorted(self.raw, key=lambda row: row.result, reverse=descending)[:n]
+		self.rows = sorted(self.rows, key=lambda row: row.result, reverse=descending)[:abs(n)]
 
 
 	def dump_raw(data):
@@ -112,7 +94,7 @@ class Transformer:
 
 
 # dev area
-a = Transformer(agg_by='winlose', group_by='month', top_n=100, since=date(2017, 5, 1), until=date(2017, 12, 31))
+# a = Transformer(agg_by='winlose', group_by='month', top_n=100, since=date(2017, 5, 1), until=date(2017, 12, 31))
 
-pprint.pp(vars(a))
+# pprint.pp(vars(a))
 
