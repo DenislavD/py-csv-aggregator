@@ -29,17 +29,24 @@ class Transformer:
 		]
 		# Extractor.data
 
+
+
 		# this will be in init
 		# grouping aggregate route
 		if self.group_by:
 			self.agg_by = args.get('agg_by', 'sum')
-			groups = self._group()
-			#pprint.pp(groups)
+			
+			groups = self.group()
+			self.aggregate(groups)
 
-			self._aggregate(groups)
+			filtered = self.filterdate(since=self.since, until=self.until)
+			#pprint.pp(filtered)
 
+			top_n = self.get_top_n_results(self.top_n)
+			pprint.pp(top_n)
 
-	def _group(self):
+	def group(self) -> []:
+
 		def grouper(elem):
 			match self.group_by:
 				case 'year':
@@ -53,9 +60,6 @@ class Transformer:
 
 		groups = []
 		for key, group in groupby(self.raw, key=grouper):
-			# groups.append((key, [*group]))
-			# groups.append(Group(key, *zip(*map(attrgetter('trades', 'result', 'begin'), group))))
-
 			# transpose number sequences for easier aggregation
 			trades, results, begins = zip(*[(row.trades, row.result, row.begin) for row in group])
 			groups.append({
@@ -71,7 +75,8 @@ class Transformer:
 
 
 	# use cached_property from functools :)
-	def _aggregate(self, groups):
+	def aggregate(self, groups) -> None:
+
 		def aggregator(results):
 			match self.agg_by:
 				case 'mean':
@@ -87,7 +92,16 @@ class Transformer:
 			group['outputs']['trades-mean'] = round(group['outputs']['trades-sum'] / group['outputs']['days-count'], 1)
 			group['outputs'][f'results-{self.agg_by}'] = aggregator(group['data_series']['results'])
 
-		pprint.pp(groups)
+
+	# init - if since or until call filterdate
+	def filterdate(self, *, since=date.min, until=date.max) -> []:
+		return [row for row in self.raw if row.day >= since and row.day <= until]
+
+
+	def get_top_n_results(self, n) -> []:
+		print(f'N: {n}')
+		descending = n >= 0
+		return sorted(self.raw, key=lambda row: row.result, reverse=descending)[:n]
 
 
 	def dump_raw(data):
@@ -98,7 +112,7 @@ class Transformer:
 
 
 # dev area
-a = Transformer(agg_by='winlose', group_by='month', top_n=None, since=date(2017, 5, 1), until=date(2017, 12, 31))
+a = Transformer(agg_by='winlose', group_by='month', top_n=100, since=date(2017, 5, 1), until=date(2017, 12, 31))
 
-#pprint.pp(vars(a))
+pprint.pp(vars(a))
 
