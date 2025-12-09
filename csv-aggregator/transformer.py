@@ -43,7 +43,7 @@ class Transformer:
 			# transpose number sequences for easier aggregation
 			trades, results, begins = zip(*[(row.trades, row.result, row.begin) for row in group])
 			groups.append({
-				'name': key,
+				'group': key,
 				'data_series': {
 					'trades': trades,
 					'results': results,
@@ -74,7 +74,6 @@ class Transformer:
 			group['outputs'][f'results-{agg_by}'] = aggregator(group['data_series']['results'])
 
 
-	# init - if since or until call filterdate
 	def filterdate(self, since, until):
 		since = since or date.min
 		until = until or date.max
@@ -86,15 +85,14 @@ class Transformer:
 		self.rows = sorted(self.rows, key=lambda row: row.result, reverse=descending)[:abs(n)]
 
 
-	def dump_raw(data):
+	def dump_raw(self):
 		with open('sample.csv', 'w',  newline='', encoding='utf-8-sig') as csv_file:
 			writer = csv.writer(csv_file)
 			writer.writerow('day, trades, result, note, begin'.split(', '))
-			writer.writerows(data)
+			writer.writerows(self.rows)
 
 
 # dev area
 # a = Transformer(agg_by='winlose', group_by='month', top_n=100, since=date(2017, 5, 1), until=date(2017, 12, 31))
 
 # pprint.pp(vars(a))
-

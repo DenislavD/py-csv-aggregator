@@ -60,8 +60,8 @@ class Extractor:
 			if col[mapping['trades']]: # drop weekends and non-trading days
 				_data.append(cls.DataRow(
 					cls.parse_date(col[mapping['day']]),
-					int(col[mapping['trades']]),
-					int(col[mapping['balance']]),
+					int(col[mapping['trades']] or 0),
+					int(col[mapping['balance']] or 0),
 					col[mapping['note']],
 					cls.parse_time(col[mapping['begin']]) if mapping['begin'] else None,
 				))
