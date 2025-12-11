@@ -19,9 +19,9 @@ logging.basicConfig( # root level
 )
 logging.getLogger("csv_aggregator").setLevel(logging.DEBUG) # package level
 
-from extractor import Extractor
-from transformer import Transformer
-from utils import get_serializer
+from .extractor import Extractor # relative now that it's packaged
+from .transformer import Transformer
+from .utils import get_serializer
 
 log = logging.getLogger(__name__) # name will be csv_aggregator.core -> inherits from parent
 
@@ -49,8 +49,12 @@ def main():
 	# Path parsing and collecting files
 	file_queue = set()
 	for cur_path in args.path:
+		scripts_dir = os.path.dirname(__file__)
 		# allow lazily not supplying data\ as folder
-		norm_path = cur_path if os.path.exists(cur_path) else os.path.join('data', cur_path)
+		if os.path.exists(os.path.join(scripts_dir, cur_path)):
+			norm_path = os.path.join(scripts_dir, cur_path)
+		else:
+			norm_path = os.path.join(scripts_dir, 'data', cur_path)
 
 		if os.path.isfile(norm_path):
 			file_queue.add(norm_path)
@@ -95,3 +99,8 @@ if __name__ == '__main__':
 	# run with:     py core.py "2017-06 Journal.csv"
 	# Full example: py core.py data\2017 -a sum -g year -t 5 -s 2017-05-01 -u 2017-12-31
 	# py core.py "2017-06 Journal.csv" -a sum -g year -t 5 -s 2017-05-01 -u 2017-12-31
+	
+	# Now that it's packaged, ensure installed (pip show csv-aggregator)
+	# If not present: pip install -e . This is a symlink to the files folder. Then from anywhere:
+	# csv-agg "2017-06 Journal.csv" -a sum -g year -t 5 -s 2017-05-01 -u 2017-12-31
+	# To remove: pip uninstall csv_aggregator

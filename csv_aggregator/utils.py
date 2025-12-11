@@ -3,6 +3,11 @@ from fpdf.fonts import FontFace
 import logging
 import json
 import string
+import os
+
+PACKAGE_DIR = os.path.dirname(__file__)
+DATA_DIR = os.path.join(PACKAGE_DIR, 'data')
+FONTS_DIR = os.path.join(PACKAGE_DIR, 'fonts')
 
 
 # factory creator
@@ -33,7 +38,7 @@ def _serialize_json(groups, rows, top_n):
 			})
 	output = [output_groups, output_rows]
 	print(json.dumps(output, indent=4))
-	with open('output.json', 'w') as file:
+	with open(os.path.join(PACKAGE_DIR, 'output.json'), 'w') as file:
 		json.dump(output, file)
 
 
@@ -57,8 +62,8 @@ def _serialize_pdf(groups, rows, top_n):
 
 	pdf = PDFWithBackground(orientation='landscape')
 	pdf.add_page()
-	pdf.add_font('Tahoma', '', '.\\fonts\\Tahoma.ttf', uni=True)
-	pdf.add_font('Tahoma', 'B', '.\\fonts\\Tahomabd.ttf', uni=True)
+	pdf.add_font('Tahoma', '', os.path.join(FONTS_DIR, 'Tahoma.ttf'), uni=True)
+	pdf.add_font('Tahoma', 'B', os.path.join(FONTS_DIR, 'Tahomabd.ttf'), uni=True)
 	headings_style = FontFace(fill_color=(67, 67, 67), color=(255, 255, 255), emphasis='BOLD')
 
 	pdf.set_font('Tahoma', 'B', size=26)
@@ -93,11 +98,11 @@ def _serialize_pdf(groups, rows, top_n):
 
 	pdf.ln(20)
 	pdf.cell(text='--- REPORT END ---', center=True)
-	pdf.output('output.pdf')
+	pdf.output(os.path.join(PACKAGE_DIR, 'output.pdf'))
 
 
 class PDFWithBackground(FPDF):
     def header(self):
         # This is called automatically at the start of each new page
         # The image is drawn first, so it's in the background
-        self.image('.\\data\\confidential_back.jpg', x=0, y=0, w=self.w, h=self.h)
+        self.image(os.path.join(DATA_DIR, 'confidential_back.jpg'), x=0, y=0, w=self.w, h=self.h)

@@ -2,10 +2,10 @@
 .pytest_cache
 __pycache__
 csv_aggregator/myapp*
+csv_aggregator/output*
 csv_aggregator/data/2017/*.csv
 csv_aggregator/data/2022
 csv_aggregator/data/2017-2018 Journal.csv
 csv_aggregator/data/2019-2020 Journal.csv
-csv_aggregator/data/xconfidential.jpg
 INFO 2023.csv
 sample*.csv
