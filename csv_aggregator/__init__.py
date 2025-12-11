@@ -5,7 +5,7 @@ This tool collects provided .csv files/directories and gets my trade data by day
 Afterwards, it parses the data and summarizes it by given criteria in JSON/PDF format.
 """
 
-__version__ = '0.1.0'
+__version__ = '1.0'
 __author__ = 'Denislav Dimitrov @DenislavD'
 
 # Import main classes/functions you want users to access directly
