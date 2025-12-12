@@ -4,6 +4,9 @@
 requires = ["hatchling >= 1.26"]
 build-backend = "hatchling.build"
 
+[tool.hatch.version]
+path = "csv_aggregator/__init__.py"
+
 [project]
 name = "csv_aggregator"
 dynamic = ["version"]
@@ -25,9 +28,14 @@ dependencies = ["fpdf2>2.8"]
 [project.scripts]
 csv-agg = "csv_aggregator.core:main"
 
+[project.optional-dependencies]
+test = ["pytest>=7.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["csv_aggregator/tests"]
+cache_dir = ".pytest_cache"
+
 [project.urls]
 Homepage = "https://github.com/DenislavD/py-csv-aggregator"
 Issues = "https://github.com/DenislavD/py-csv-aggregator/issues"
 
-[tool.hatch.version]
-path = "csv_aggregator/__init__.py"

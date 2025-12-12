@@ -4,7 +4,7 @@ import csv
 from datetime import date, time, timedelta
 from collections import namedtuple
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('csv_aggregator.extractor')
 
 class Extractor:
 	data = [] # holds cleaned data for all files

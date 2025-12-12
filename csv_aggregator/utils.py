@@ -55,11 +55,7 @@ def _serialize_pdf(groups, rows, top_n):
 		for row in rows:
 			output_rows.append([row.day.strftime('%Y-%m-%d'), row.result, row.trades, row.note])
 
-	# Data serialized, start fpdf2 output 
-	# Silence fpdf's overly verbose logging
-	logging.getLogger('fpdf').setLevel(logging.CRITICAL)
-	logging.getLogger('fontTools').setLevel(logging.CRITICAL)
-
+	# Data serialized, start fpdf2 output
 	pdf = PDFWithBackground(orientation='landscape')
 	pdf.add_page()
 	pdf.add_font('Tahoma', '', os.path.join(FONTS_DIR, 'Tahoma.ttf'), uni=True)
@@ -103,6 +99,6 @@ def _serialize_pdf(groups, rows, top_n):
 
 class PDFWithBackground(FPDF):
     def header(self):
-        # This is called automatically at the start of each new page
+        # Claude AI: This is called automatically at the start of each new page
         # The image is drawn first, so it's in the background
         self.image(os.path.join(DATA_DIR, 'confidential_back.jpg'), x=0, y=0, w=self.w, h=self.h)

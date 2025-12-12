@@ -5,25 +5,24 @@ import logging
 import logging.handlers
 from datetime import date
 
-# @TODO: packaging, light tests, cleanup, unit tests, venv?
-
-logging.basicConfig( # root level
+logging.basicConfig( # root level, valid for all imports as well
 	handlers=[
 		logging.StreamHandler(sys.stderr), 
-		logging.handlers.TimedRotatingFileHandler('myapp.log', 'midnight'),
+		logging.handlers.TimedRotatingFileHandler(
+			os.path.join(os.path.dirname(__file__), 'myapp.log'), 'midnight'
+		),
 	], 
-	level=logging.DEBUG, # @TODO change to WARNING after packaging
+	level=logging.WARNING,
 	format='%(asctime)s: %(levelname)s@%(filename)s~%(lineno)d: %(message)s',
-	#format='%(asctime)s [%(levelname)s]: %(message)s',
 	datefmt='%Y-%m-%d %H:%M:%S',
 )
-logging.getLogger("csv_aggregator").setLevel(logging.DEBUG) # package level
+logging.getLogger('csv_aggregator').setLevel(logging.DEBUG) # package level
 
 from .extractor import Extractor # relative now that it's packaged
 from .transformer import Transformer
 from .utils import get_serializer
 
-log = logging.getLogger(__name__) # name will be csv_aggregator.core -> inherits from parent
+log = logging.getLogger('csv_aggregator.core') # module level, inherits from parent
 
 
 def main():
@@ -47,23 +46,10 @@ def main():
 	args = parser.parse_args() # args is a Namespace: vars(args)
 
 	# Path parsing and collecting files
-	file_queue = set()
-	for cur_path in args.path:
-		scripts_dir = os.path.dirname(__file__)
-		# allow lazily not supplying data\ as folder
-		if os.path.exists(os.path.join(scripts_dir, cur_path)):
-			norm_path = os.path.join(scripts_dir, cur_path)
-		else:
-			norm_path = os.path.join(scripts_dir, 'data', cur_path)
-
-		if os.path.isfile(norm_path):
-			file_queue.add(norm_path)
-		elif os.path.isdir(norm_path):
-			file_queue.update(get_csv_in_dir(norm_path))
-
+	file_queue = get_file_queue(args.path)
 	if not file_queue:
-		sys.exit('Files couldn\'t be found.')
-
+		log.error('Files couldn\'t be found.')
+		sys.exit()
 	for filepath in file_queue:
 		Extractor.process(filepath)
 	log.info(f'{len(Extractor.data)} total rows gathered.')
@@ -94,13 +80,26 @@ def get_csv_in_dir(directory) -> list:
 	return files
 
 
+def get_file_queue(args_path) -> set:
+	file_queue = set()
+	for cur_path in args_path:
+		scripts_dir = os.path.dirname(__file__)
+		# allow lazily not supplying data\ as folder
+		if os.path.exists(os.path.join(scripts_dir, cur_path)):
+			norm_path = os.path.join(scripts_dir, cur_path)
+		else:
+			norm_path = os.path.join(scripts_dir, 'data', cur_path)
+
+		if os.path.isfile(norm_path):
+			file_queue.add(norm_path)
+		elif os.path.isdir(norm_path):
+			file_queue.update(get_csv_in_dir(norm_path))
+	return file_queue
+
+
 if __name__ == '__main__':
 	main()
-	# run with:     py core.py "2017-06 Journal.csv"
-	# Full example: py core.py data\2017 -a sum -g year -t 5 -s 2017-05-01 -u 2017-12-31
-	# py core.py "2017-06 Journal.csv" -a sum -g year -t 5 -s 2017-05-01 -u 2017-12-31
-	
-	# Now that it's packaged, ensure installed (pip show csv-aggregator)
-	# If not present: pip install -e . This is a symlink to the files folder. Then from anywhere:
-	# csv-agg "2017-06 Journal.csv" -a sum -g year -t 5 -s 2017-05-01 -u 2017-12-31
-	# To remove: pip uninstall csv_aggregator
+	# Now that it's packaged, ensure installed (pip install -e .[test] /// pip show csv-aggregator)
+	# This is a symlink to the files folder. Then from anywhere:
+	# csv-agg "2017-06 Journal.csv" data\2017 -a sum -g year -t 5 -s 2017-05-01 -u 2017-12-31
+	# To remove: pip uninstall csv-aggregator

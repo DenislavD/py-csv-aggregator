@@ -4,7 +4,7 @@ from datetime import date
 from itertools import groupby
 import pprint
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('csv_aggregator.transformer')
 
 # dev only
 # from collections import namedtuple
@@ -36,10 +36,8 @@ class Transformer:
 				case 'weekday':
 					return elem.day.strftime('%A') # .isoweekday()
 
-		self.rows.sort(key=grouper)
-
 		groups = []
-		for key, group in groupby(self.rows, key=grouper):
+		for key, group in groupby(sorted(self.rows, key=grouper), key=grouper):
 			# transpose number sequences for easier aggregation
 			trades, results, begins = zip(*[(row.trades, row.result, row.begin) for row in group])
 			groups.append({
