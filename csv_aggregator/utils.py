@@ -4,14 +4,18 @@ import logging
 import json
 import string
 import os
+from datetime import datetime
 
 PACKAGE_DIR = os.path.dirname(__file__)
 DATA_DIR = os.path.join(PACKAGE_DIR, 'data')
 FONTS_DIR = os.path.join(PACKAGE_DIR, 'fonts')
+ouputs_filename = os.path.join(PACKAGE_DIR, 'outputs', f'Csv-agg {datetime.now().strftime('%Y%m%d_%H%M%S') } ')
 
 
 # factory creator
-def get_serializer(format): 
+def get_serializer(format, name_string):
+	global ouputs_filename
+	ouputs_filename += name_string.strip()
 	match format:
 		case 'json':
 			func = _serialize_json
@@ -23,7 +27,7 @@ def get_serializer(format):
 
 
 # implementations/products
-def _serialize_json(groups, rows, top_n): 
+def _serialize_json(groups, rows, top_n):
 	output_groups = []
 	output_rows = []
 	if groups:
@@ -38,7 +42,7 @@ def _serialize_json(groups, rows, top_n):
 			})
 	output = [output_groups, output_rows]
 	print(json.dumps(output, indent=4))
-	with open(os.path.join(PACKAGE_DIR, 'output.json'), 'w') as file:
+	with open(f'{ouputs_filename}.json', 'w') as file:
 		json.dump(output, file)
 
 
@@ -94,7 +98,7 @@ def _serialize_pdf(groups, rows, top_n):
 
 	pdf.ln(20)
 	pdf.cell(text='--- REPORT END ---', center=True)
-	pdf.output(os.path.join(PACKAGE_DIR, 'output.pdf'))
+	pdf.output(f'{ouputs_filename}.pdf')
 
 
 class PDFWithBackground(FPDF):

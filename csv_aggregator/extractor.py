@@ -49,7 +49,8 @@ class Extractor:
 				if len(header) < 15 and search_term in header.lower():
 					if mapping[search_term] == None: # don't overwrite if already found
 						mapping[search_term] = k
-
+		# print(mapping)
+		# exit()
 		return mapping
 
 

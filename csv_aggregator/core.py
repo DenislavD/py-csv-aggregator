@@ -9,9 +9,9 @@ logging.basicConfig( # root level, valid for all imports as well
 	handlers=[
 		logging.StreamHandler(sys.stderr), 
 		logging.handlers.TimedRotatingFileHandler(
-			os.path.join(os.path.dirname(__file__), 'myapp.log'), 'midnight'
+			os.path.join(os.path.dirname(__file__), 'logs', 'myapp.log'), 'midnight'
 		),
-	], 
+	],
 	level=logging.WARNING,
 	format='%(asctime)s: %(levelname)s@%(filename)s~%(lineno)d: %(message)s',
 	datefmt='%Y-%m-%d %H:%M:%S',
@@ -31,8 +31,10 @@ def main():
 	# Argument parsing
 	parser = argparse.ArgumentParser(
 		prog='CSV Aggregator',
-		description="""Ingests data from multiple CSV files and provides summaries.\n
-			Available columns: day:date, trades:int, result:int, note:str, begin:time""",
+		description="""Ingests data from multiple CSV files and provides summaries.
+Available columns: day:date, trades:int, result:int, note:str, begin:time
+CSV files are stored in the /data project subfolder.""",
+		formatter_class=argparse.RawTextHelpFormatter,
 		epilog='I hope you enjoy it!',
 	)
 	parser.add_argument('path', nargs='+') # 1+ -> list
@@ -55,16 +57,20 @@ def main():
 	log.info(f'{len(Extractor.data)} total rows gathered.')
 
 	# Data processing
+	name_string = ''
 	transformer = Transformer(Extractor.data)
 	if args.since or args.until:
 		transformer.filterdate(args.since, args.until)
+		name_string = f'{args.since or 'min'}--{args.until or 'max'} {name_string}'
 	if args.top_n:
 		transformer.get_top_n_results(args.top_n)
+		name_string = f'top{args.top_n} {name_string}'
 	if args.group_by:
 		transformer.group(args.group_by).aggregate(args.agg_by)
+		name_string = f'group-by-{args.group_by} agg-by-{args.agg_by} {name_string}'
 
 	# Outputting data - simple json/pdf factory (functions)
-	serializer = get_serializer(args.out_format) # factory client
+	serializer = get_serializer(args.out_format, name_string) # factory client
 	serializer(transformer.groups, transformer.rows, args.top_n)
 
 	log.info(f'Program completed with outputs provided in output.{args.out_format} .')
