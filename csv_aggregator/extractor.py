@@ -49,8 +49,10 @@ class Extractor:
 				if len(header) < 15 and search_term in header.lower():
 					if mapping[search_term] == None: # don't overwrite if already found
 						mapping[search_term] = k
-		# print(mapping)
-		# exit()
+		
+		for key in ('day', 'trades', 'balance'):
+			if mapping[key] is None:
+				raise KeyError(f'Header {key} was not found. Please adjust the source file. Exiting program.')
 		return mapping
 
 

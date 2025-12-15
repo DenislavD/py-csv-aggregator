@@ -7,15 +7,14 @@ import os
 from datetime import datetime
 
 PACKAGE_DIR = os.path.dirname(__file__)
-DATA_DIR = os.path.join(PACKAGE_DIR, 'data')
 FONTS_DIR = os.path.join(PACKAGE_DIR, 'fonts')
-ouputs_filename = os.path.join(PACKAGE_DIR, 'outputs', f'Csv-agg {datetime.now().strftime('%Y%m%d_%H%M%S') } ')
+outputs_filename = os.path.join(PACKAGE_DIR, 'outputs', f'Csv-agg {datetime.now().strftime('%Y%m%d_%H%M%S') } ')
 
 
 # factory creator
 def get_serializer(format, name_string):
-	global ouputs_filename
-	ouputs_filename += name_string.strip()
+	global outputs_filename
+	outputs_filename += name_string.strip()
 	match format:
 		case 'json':
 			func = _serialize_json
@@ -42,7 +41,7 @@ def _serialize_json(groups, rows, top_n):
 			})
 	output = [output_groups, output_rows]
 	print(json.dumps(output, indent=4))
-	with open(f'{ouputs_filename}.json', 'w') as file:
+	with open(f'{outputs_filename}.json', 'w') as file:
 		json.dump(output, file)
 
 
@@ -98,11 +97,11 @@ def _serialize_pdf(groups, rows, top_n):
 
 	pdf.ln(20)
 	pdf.cell(text='--- REPORT END ---', center=True)
-	pdf.output(f'{ouputs_filename}.pdf')
+	pdf.output(f'{outputs_filename}.pdf')
 
 
 class PDFWithBackground(FPDF):
     def header(self):
         # Claude AI: This is called automatically at the start of each new page
         # The image is drawn first, so it's in the background
-        self.image(os.path.join(DATA_DIR, 'confidential_back.jpg'), x=0, y=0, w=self.w, h=self.h)
+        self.image(os.path.join(PACKAGE_DIR, 'data', 'confidential_back.jpg'), x=0, y=0, w=self.w, h=self.h)

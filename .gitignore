@@ -1,7 +1,6 @@
 # Files to ignore
 .pytest_cache
 __pycache__
-csv_aggregator/tests
 csv_aggregator/logs/myapp.log.*
 csv_aggregator/outputs/csv-agg*
 csv_aggregator/data/2017/*.csv

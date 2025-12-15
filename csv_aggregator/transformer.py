@@ -6,31 +6,17 @@ import pprint
 
 log = logging.getLogger('csv_aggregator.transformer')
 
-# dev only
-# from collections import namedtuple
-# DataRow = namedtuple('DataRow', ['day', 'trades', 'result', 'note', 'begin'])
-# from extractor import Extractor
-
 class Transformer:
 	def __init__(self, data):
 		self.rows = data
 		self.groups = []
-
-		# self.raw = [
-		# 	DataRow(day=date(2017, 6, 30), trades=1, result=-15, note='missed trades before 18:00 . Need to be ready to ACT', begin=None),                                
-		# 	DataRow(day=date(2027, 6, 2), trades=5, result=100, note='no market data', begin=None),                                                                         
-		# 	DataRow(day=date(2015, 6, 13), trades=1, result=20, note='', begin=None), 
-		# 	DataRow(day=date(2017, 6, 3), trades=0, result=0, note='', begin=None),                                                                                    
-		# 	DataRow(day=date(2015, 6, 4), trades=0, result=0, note='', begin=None),                                                                                    
-		# 	DataRow(day=date(2015, 6, 5), trades=1, result=-5, note="first trading day after 3 days of rest, was careful. Had", begin=None)
-		# ]
 
 	def group(self, group_by) -> object:
 
 		def grouper(elem):
 			match group_by:
 				case 'year':
-					return elem.day.year
+					return str(elem.day.year)
 				case 'month':
 					return elem.day.strftime('%Y-%m')
 				case 'weekday':
@@ -83,14 +69,9 @@ class Transformer:
 		self.rows = sorted(self.rows, key=lambda row: row.result, reverse=descending)[:abs(n)]
 
 
-	def dump_raw(self):
+	def _dump_raw(self):
 		with open('sample.csv', 'w',  newline='', encoding='utf-8-sig') as csv_file:
 			writer = csv.writer(csv_file)
 			writer.writerow('day, trades, result, note, begin'.split(', '))
 			writer.writerows(self.rows)
 
-
-# dev area
-# a = Transformer(agg_by='winlose', group_by='month', top_n=100, since=date(2017, 5, 1), until=date(2017, 12, 31))
-
-# pprint.pp(vars(a))

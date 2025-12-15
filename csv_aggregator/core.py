@@ -90,10 +90,12 @@ def get_file_queue(args_path) -> set:
 	file_queue = set()
 	for cur_path in args_path:
 		scripts_dir = os.path.dirname(__file__)
-		# allow lazily not supplying data\ as folder
-		if os.path.exists(os.path.join(scripts_dir, cur_path)):
+
+		if os.path.exists(os.path.abspath(cur_path)):
+			norm_path = os.path.abspath(cur_path)
+		elif os.path.exists(os.path.join(scripts_dir, cur_path)):
 			norm_path = os.path.join(scripts_dir, cur_path)
-		else:
+		else: # allow lazily not supplying data\ as folder
 			norm_path = os.path.join(scripts_dir, 'data', cur_path)
 
 		if os.path.isfile(norm_path):
