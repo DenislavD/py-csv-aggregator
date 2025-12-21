@@ -8,7 +8,7 @@ from datetime import datetime
 
 PACKAGE_DIR = os.path.dirname(__file__)
 FONTS_DIR = os.path.join(PACKAGE_DIR, 'fonts')
-outputs_filename = os.path.join(PACKAGE_DIR, 'outputs', f'Csv-agg {datetime.now().strftime('%Y%m%d_%H%M%S') } ')
+outputs_filename = os.path.join(PACKAGE_DIR, 'outputs', f'Csv-agg {datetime.now().strftime("%Y%m%d_%H%M%S") } ')
 
 
 # factory creator
