@@ -41,7 +41,8 @@ Acceptance: README + example, pip install -e ., csv-agg --help, tests pass.</br>
 <h5>Run with:</h5>
 <code>git clone https://github.com/DenislavD/py-csv-aggregator.git
 cd py-csv-aggregator
-pip install -e .[test]
+pip install --upgrade pip  # Ensure pip >= 21.3 for editable installs
+pip install -e .[test] --user
 pytest
 csv-agg --help
 csv-agg data -g weekday

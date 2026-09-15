@@ -61,7 +61,7 @@ CSV files are stored in the /data project subfolder.""",
 	transformer = Transformer(Extractor.data)
 	if args.since or args.until:
 		transformer.filterdate(args.since, args.until)
-		name_string = f'{args.since or 'min'}--{args.until or 'max'} {name_string}'
+		name_string = f'{args.since or "min"}--{args.until or "max"} {name_string}'
 	if args.top_n:
 		transformer.get_top_n_results(args.top_n)
 		name_string = f'top{args.top_n} {name_string}'
