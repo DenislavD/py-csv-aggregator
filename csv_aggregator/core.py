@@ -19,7 +19,7 @@ logging.getLogger('csv_aggregator').setLevel(logging.DEBUG) # package level
 
 from .extractor import Extractor # relative now that it's packaged
 from .transformer import Transformer
-from .utils import get_serializer
+from .utils import get_output_filename, get_serializer
 
 log = logging.getLogger('csv_aggregator.core') # module level, inherits from parent
 
@@ -45,34 +45,29 @@ CSV files are stored in the /data project subfolder.""",
 	return parser
 
 def main(args_list=None):
-	log.info('Started program')
+	log.info('Started program.')
 	parser = create_parser()
 	args = parser.parse_args(args_list) # args is a Namespace: vars(args)
 
-	# Path parsing and collecting files
+	# Path parsing and collecting CSV files
 	file_queue = get_file_queue(args.path)
 	if not file_queue:
 		log.error('Files couldn\'t be found.')
 		raise SystemExit()
+	# Extracting all the data
 	for filepath in file_queue:
 		Extractor.process(filepath)
 	log.info(f'{len(Extractor.data)} total rows gathered.')
 
 	# Data processing
-	name_string = ''
 	transformer = Transformer(Extractor.data)
-	if args.since or args.until:
-		transformer.filterdate(args.since, args.until)
-		name_string = f'{args.since or "min"}--{args.until or "max"} {name_string}'
-	if args.top_n:
-		transformer.get_top_n_results(args.top_n)
-		name_string = f'top{args.top_n} {name_string}'
-	if args.group_by:
-		transformer.group(args.group_by).aggregate(args.agg_by)
-		name_string = f'group-by-{args.group_by} agg-by-{args.agg_by} {name_string}'
+	if args.since or args.until:	transformer.filterdate(args.since, args.until)
+	if args.top_n:					transformer.get_top_n_results(args.top_n)
+	if args.group_by:				transformer.group(args.group_by).aggregate(args.agg_by)
 
 	# Outputting data - simple json/pdf factory (functions)
-	serializer = get_serializer(args.out_format, name_string) # factory client
+	output_filename = get_output_filename(args)
+	serializer = get_serializer(args.out_format, output_filename) # factory client
 	serializer(transformer.groups, transformer.rows, args.top_n)
 
 	log.info(f'Program completed with outputs provided in output.{args.out_format} .')

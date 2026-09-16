@@ -5,28 +5,35 @@ import json
 import string
 import os
 from datetime import datetime
+from functools import partial
 
 PACKAGE_DIR = os.path.dirname(__file__)
 FONTS_DIR = os.path.join(PACKAGE_DIR, 'fonts')
-outputs_filename = os.path.join(PACKAGE_DIR, 'outputs', f'Csv-agg {datetime.now().strftime("%Y%m%d_%H%M%S") } ')
 
 
 # factory creator
-def get_serializer(format, name_string):
-	global outputs_filename
-	outputs_filename += name_string.strip()
+def get_serializer(format, output_filename):
 	match format:
-		case 'json':
-			func = _serialize_json
-		case 'pdf': 
-			func = _serialize_pdf
-		case _:
-			func = _serialize_json
-	return func
+		case 'json': func = _serialize_json
+		case 'pdf':  func = _serialize_pdf
+		case _: 	 func = _serialize_json
+	return partial(func, output_filename=output_filename)
+
+def get_output_filename(args) -> str:
+	base_name = f'Csv-agg {datetime.now().strftime("%Y%m%d_%H%M%S") } '
+	base_path = os.path.join(PACKAGE_DIR, 'outputs', base_name)
+
+	if args.since or args.until:
+		base_path += f'{args.since or "min"}--{args.until or "max"}'
+	if args.top_n:
+		base_path += f'top{args.top_n}'
+	if args.group_by:
+		base_path += f'group-by-{args.group_by} agg-by-{args.agg_by}'
+	return base_path
 
 
 # implementations/products
-def _serialize_json(groups, rows, top_n):
+def _serialize_json(groups, rows, top_n, *, output_filename):
 	output_groups = []
 	output_rows = []
 	if groups:
@@ -41,11 +48,11 @@ def _serialize_json(groups, rows, top_n):
 			})
 	output = [output_groups, output_rows]
 	print(json.dumps(output, indent=4))
-	with open(f'{outputs_filename}.json', 'w') as file:
+	with open(f'{output_filename}.json', 'w') as file:
 		json.dump(output, file)
 
 
-def _serialize_pdf(groups, rows, top_n):
+def _serialize_pdf(groups, rows, top_n, *, output_filename):
 	if groups:
 		keys = groups[0]['outputs'].keys()
 		output_groups = [['Group', *map(lambda x: string.capwords(x.replace('-', ' '), ' '), keys)]]
@@ -97,7 +104,7 @@ def _serialize_pdf(groups, rows, top_n):
 
 	pdf.ln(20)
 	pdf.cell(text='--- REPORT END ---', center=True)
-	pdf.output(f'{outputs_filename}.pdf')
+	pdf.output(f'{output_filename}.pdf')
 
 
 class PDFWithBackground(FPDF):
