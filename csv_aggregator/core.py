@@ -1,13 +1,12 @@
 import argparse
 import os
-import sys
 import logging
 import logging.handlers
 from datetime import date
 
 logging.basicConfig( # root level, valid for all imports as well
 	handlers=[
-		logging.StreamHandler(sys.stderr), 
+		logging.StreamHandler(), # will use sys.stderr as default
 		logging.handlers.TimedRotatingFileHandler(
 			os.path.join(os.path.dirname(__file__), 'logs', 'myapp.log'), 'midnight'
 		),
@@ -25,10 +24,8 @@ from .utils import get_serializer
 log = logging.getLogger('csv_aggregator.core') # module level, inherits from parent
 
 
-def main():
-	log.info('Started program')
-
-	# Argument parsing
+def create_parser() -> argparse.ArgumentParser:
+	"""Creates, configures and returns the argparse object"""
 	parser = argparse.ArgumentParser(
 		prog='CSV Aggregator',
 		description="""Ingests data from multiple CSV files and provides summaries.
@@ -45,13 +42,18 @@ CSV files are stored in the /data project subfolder.""",
 	parser.add_argument('-s', '--since', help='Since yyyy-mm-dd', type=date.fromisoformat)
 	parser.add_argument('-u', '--until', help='Until yyyy-mm-dd', type=date.fromisoformat)
 	parser.add_argument('-o', '--out-format', help='Output format', choices=['json', 'pdf', ], default='json')
-	args = parser.parse_args() # args is a Namespace: vars(args)
+	return parser
+
+def main(args_list=None):
+	log.info('Started program')
+	parser = create_parser()
+	args = parser.parse_args(args_list) # args is a Namespace: vars(args)
 
 	# Path parsing and collecting files
 	file_queue = get_file_queue(args.path)
 	if not file_queue:
 		log.error('Files couldn\'t be found.')
-		sys.exit()
+		raise SystemExit()
 	for filepath in file_queue:
 		Extractor.process(filepath)
 	log.info(f'{len(Extractor.data)} total rows gathered.')

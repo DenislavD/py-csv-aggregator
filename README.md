@@ -9,14 +9,10 @@ Sample files are provided in the csv_aggregator/data directory.
 <li>CLI options: --group-by (columns), --agg (sum, mean, count), --out-format (csv/json),
 top-n (5/-100 top results), --since/--until (date filters).</li>
 <li>Robust parsing: handle different delimiters, header mismatches, missing values.</li>
+<li>Uses Pandas for DataFrame operations.</li>
 <li>Logging: operations logged (files processed, rows aggregated, errors).</li>
 <li>Packaging: installable with an entry point csv-agg.</li>
 <li>Tests: unit tests for parsing, grouping, and edge cases.</li>
-
-</br>
-<h5>Stretch Features (for later):</h5>
-<li>Dry-run and verbose modes.</li>
-<li>Support for gzipped CSVs.</li>
 
 </br>
 <h5>Complexity for main aggregation path:</h5>
@@ -25,7 +21,7 @@ top-n (5/-100 top results), --since/--until (date filters).</li>
 	<b>Time complexity:</b>
 	Initial read O(n) + headers O(1) + load_data O(n) + Transformer: sort O(n log n) + 
 	group O(n) + aggregate O(n) + top_n filter sort O(n log n) + serialize O(50) = O(1) 
-	<b>=> O(n)</b>
+	<b>=> O(n log n)</b>
 </div>
 <div>
 	<b>Space complexity:</b>
@@ -41,8 +37,12 @@ Acceptance: README + example, pip install -e ., csv-agg --help, tests pass.</br>
 <h5>Run with:</h5>
 <code>git clone https://github.com/DenislavD/py-csv-aggregator.git
 cd py-csv-aggregator
+py -m venv venv_v2 # python3 for Linux
+venv_v2\scripts\activate # Windows - CMD
+venv_v2\scripts\Activate.ps1 # Windows - PowerShell
+source venv_v2/bin/activate # Linux
 pip install --upgrade pip  # Ensure pip >= 21.3 for editable installs
-pip install -e .[test] --user
+pip install -e .[test]
 pytest
 csv-agg --help
 csv-agg data -g weekday
