@@ -5,6 +5,7 @@ from datetime import date
 
 PACKAGE_DIR = os.path.dirname(os.path.dirname(__file__))
 file_path = os.path.join(PACKAGE_DIR, 'data', '2017-06 Journal.csv')
+last_known_date = date(2025, 12, 15)
 
 # row:4 data from 2017-06 Journal.csv:
 @pytest.fixture
@@ -40,18 +41,16 @@ def test_match_headers_missing():
 		Extractor._match_headers(missing)
 
 def test_parse_date_short_year():
-	parsed = Extractor.parse_date('05-01-23')
+	parsed = Extractor.parse_date('05-01-23', last_known_date)
 	assert parsed == date(2023, 1, 5), 'Failure converting \'23 to 2023'
 
 def test_parse_date_year_fallback():
-	Extractor._last_date = date(2025, 12, 15)
-	parsed = Extractor.parse_date('05-01')
+	parsed = Extractor.parse_date('05-01', last_known_date)
 
 	assert parsed == date(2025, 1, 5), 'Failure falling back to last known year'
 
 def test_parse_date_fatal_mismatch():
-	Extractor._last_date = date(2025, 12, 15)
-	parsed = Extractor.parse_date('3nov')
+	parsed = Extractor.parse_date('3nov', last_known_date)
 
 	assert parsed == date(2025, 12, 16), 'Failure falling back to last day + 1'
 

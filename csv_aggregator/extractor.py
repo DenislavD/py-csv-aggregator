@@ -7,20 +7,21 @@ from collections import namedtuple
 log = logging.getLogger('csv_aggregator.extractor')
 
 class Extractor:
-	data = [] # holds cleaned data for all files
+	"""Parses a CSV file and returns a list of namedtuple data
+	"""
 	FINAL_HEADERS = ['day', 'trades', 'result', 'note', 'begin'] # (hh:mm)
 	DataRow = namedtuple('DataRow', FINAL_HEADERS)
-	_last_date = None
 
 	@classmethod
 	def process(cls, file):
-		rows = cls._ingest_file(file)
-		mapping = cls._match_headers(rows)
-		cls.data.extend(cls._load_data(mapping, rows))
+		rows: list = cls._ingest_file(file)
+		mapping: dict = cls._match_headers(rows)
+		clean_data: list[DataRow] = cls._format_data(mapping, rows)
+		return clean_data
 
 
 	@classmethod
-	def _ingest_file(cls, file): # CSV Ingestion
+	def _ingest_file(cls, file) -> list:
 		rows = []
 		with open(file, 'r', newline='', encoding='utf-8-sig') as csv_file:
 			reader = csv.reader(csv_file)
@@ -36,7 +37,7 @@ class Extractor:
 
 
 	@classmethod
-	def _match_headers(cls, rows):
+	def _match_headers(cls, rows) -> dict:
 		mapping = {
 			'day': None,
 			'trades': None,
@@ -57,42 +58,38 @@ class Extractor:
 
 
 	@classmethod
-	def _load_data(cls, mapping, rows):
-		_data = []
+	def _format_data(cls, mapping, rows) -> list[DataRow]:
+		data = []
+		last_known_date = date(2017, 10, 1) # default, shouldn't actually appear
 		for col in rows[1:]:
 			if col[mapping['trades']]: # drop weekends and non-trading days
-				_data.append(cls.DataRow(
-					cls.parse_date(col[mapping['day']]),
+				data.append(cls.DataRow(
+					cls.parse_date(col[mapping['day']], last_known_date),
 					int(col[mapping['trades']] or 0),
 					int(col[mapping['balance']] or 0),
 					col[mapping['note']],
 					cls.parse_time(col[mapping['begin']]) if mapping['begin'] else None,
 				))
-		return _data
-
-
-	@classmethod
-	def reset(cls):
-		cls.data = []
+				last_known_date = data[-1].day
+		return data
 
 
 	# Data normalization methods
 	@classmethod
-	def parse_date(cls, datestr) -> date:
+	def parse_date(cls, datestr, last_known_date: date) -> date:
 		# target is datetime.strptime(datestr, '%d-%m-%Y'), but
 		# default is 31-02-17 , could be only 29-02 as well, so:
 		parts = datestr.split('-')
-		if len(parts) < 2: # fatal mismatch, use fallback
-			return cls._last_date + timedelta(days=1)
-		if len(parts) < 3:
-			parts.append(str(cls._last_date.year))
+		if len(parts) < 2 or len(parts) > 3: # fatal mismatch, use fallback
+			return last_known_date + timedelta(days=1)
+		if len(parts) == 2:
+			parts.append(str(last_known_date.year)) # year is missing
 		if len(parts[2]) == 2:
 			parts[2] = '20' + parts[2]
 		if len(parts[2]) != 4:
-			parts[2] = cls._last_date.year # fallback to last seen year
+			parts[2] = last_known_date.year # fallback to last seen year
 		parts.reverse()
-		cls._last_date = date(*map(int, parts))
-		return cls._last_date
+		return date(*map(int, parts))
 
 
 	@classmethod

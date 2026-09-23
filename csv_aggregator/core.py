@@ -53,11 +53,15 @@ def main(args_list=None):
 	file_queue = get_file_queue(args.path)
 	if not file_queue:
 		log.error('Files couldn\'t be found.')
-		raise SystemExit()
+		raise SystemExit(2)
+
 	# Extracting all the data
+	data = [] # holds cleaned data for all files
 	for filepath in file_queue:
-		Extractor.process(filepath)
-	log.info(f'{len(Extractor.data)} total rows gathered.')
+		data += Extractor.process(filepath)
+	log.info(f'{len(data)} total rows gathered.')
+	print(data[:20])
+	exit()
 
 	# Data processing
 	transformer = Transformer(Extractor.data)
@@ -104,7 +108,8 @@ def get_file_queue(args_path) -> set:
 
 if __name__ == '__main__':
 	main()
-	# Now that it's packaged, ensure installed (pip install -e .[test] /// pip show csv-aggregator)
+	# Now that it's packaged, ensure installed:
+	# activate venv -> pip install -e .[test] -> pip show csv-aggregator -> pytest
 	# This is a symlink to the files folder. Then from anywhere:
 	# csv-agg "2017-06 Journal.csv" data\2017 -a sum -g year -t 5 -s 2017-05-01 -u 2017-12-31
 	# To remove: pip uninstall csv-aggregator

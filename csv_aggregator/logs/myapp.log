@@ -1,31 +1,12 @@
-2026-09-16 18:49:56: INFO@core.py~29: Started program
-2026-09-16 18:50:01: INFO@core.py~29: Started program
-2026-09-16 18:52:19: INFO@core.py~29: Started program
-2026-09-16 18:52:27: INFO@core.py~29: Started program
-2026-09-16 18:53:06: INFO@core.py~29: Started program
-2026-09-16 18:59:03: INFO@core.py~29: Started program
-2026-09-16 18:59:03: INFO@extractor.py~34: File "2019-2020 Journal.csv" ingested with 681 rows.
-2026-09-16 18:59:03: INFO@extractor.py~34: File "2017-04-05 Journal.csv" ingested with 50 rows.
-2026-09-16 18:59:03: INFO@extractor.py~34: File "INFO 2023.csv" ingested with 356 rows.
-2026-09-16 18:59:03: INFO@extractor.py~34: File "2021-2022 Journal.csv" ingested with 730 rows.
-2026-09-16 18:59:03: INFO@extractor.py~34: File "2017-09 Journal.csv" ingested with 27 rows.
-2026-09-16 18:59:03: INFO@extractor.py~34: File "2017-08 Journal date.csv" ingested with 31 rows.
-2026-09-16 18:59:03: INFO@extractor.py~34: File "2017-2018 Journal.csv" ingested with 431 rows.
-2026-09-16 18:59:03: INFO@extractor.py~34: File "2017-06 Journal.csv" ingested with 30 rows.
-2026-09-16 18:59:03: INFO@extractor.py~34: File "2017-07 Journal.csv" ingested with 29 rows.
-2026-09-16 18:59:03: INFO@extractor.py~34: File "2017-10 Journal.csv" ingested with 30 rows.
-2026-09-16 18:59:03: INFO@core.py~57: 1498 total rows gathered.
-2026-09-16 18:59:03: INFO@core.py~76: Program completed with outputs provided in output.json .
-2026-09-16 19:56:42: INFO@core.py~48: Started program.
-2026-09-16 19:56:42: INFO@extractor.py~34: File "2017-09 Journal.csv" ingested with 27 rows.
-2026-09-16 19:56:42: INFO@extractor.py~34: File "2019-2020 Journal.csv" ingested with 681 rows.
-2026-09-16 19:56:42: INFO@extractor.py~34: File "2017-06 Journal.csv" ingested with 30 rows.
-2026-09-16 19:56:42: INFO@extractor.py~34: File "2017-08 Journal date.csv" ingested with 31 rows.
-2026-09-16 19:56:42: INFO@extractor.py~34: File "2017-07 Journal.csv" ingested with 29 rows.
-2026-09-16 19:56:42: INFO@extractor.py~34: File "2017-04-05 Journal.csv" ingested with 50 rows.
-2026-09-16 19:56:42: INFO@extractor.py~34: File "2017-2018 Journal.csv" ingested with 431 rows.
-2026-09-16 19:56:42: INFO@extractor.py~34: File "INFO 2023.csv" ingested with 356 rows.
-2026-09-16 19:56:42: INFO@extractor.py~34: File "2017-10 Journal.csv" ingested with 30 rows.
-2026-09-16 19:56:42: INFO@extractor.py~34: File "2021-2022 Journal.csv" ingested with 730 rows.
-2026-09-16 19:56:42: INFO@core.py~60: 1498 total rows gathered.
-2026-09-16 19:56:42: INFO@core.py~73: Program completed with outputs provided in output.json .
+2026-09-23 14:41:29: INFO@core.py~48: Started program.
+2026-09-23 14:41:29: INFO@extractor.py~35: File "2017-10 Journal.csv" ingested with 30 rows.
+2026-09-23 14:41:29: INFO@extractor.py~35: File "2017-2018 Journal.csv" ingested with 431 rows.
+2026-09-23 14:41:29: INFO@extractor.py~35: File "2019-2020 Journal.csv" ingested with 681 rows.
+2026-09-23 14:41:29: INFO@extractor.py~35: File "2017-07 Journal.csv" ingested with 29 rows.
+2026-09-23 14:41:29: INFO@extractor.py~35: File "2017-08 Journal date.csv" ingested with 31 rows.
+2026-09-23 14:41:29: INFO@extractor.py~35: File "2017-04-05 Journal.csv" ingested with 50 rows.
+2026-09-23 14:41:29: INFO@extractor.py~35: File "2017-06 Journal.csv" ingested with 30 rows.
+2026-09-23 14:41:29: INFO@extractor.py~35: File "INFO 2023.csv" ingested with 356 rows.
+2026-09-23 14:41:29: INFO@extractor.py~35: File "2017-09 Journal.csv" ingested with 27 rows.
+2026-09-23 14:41:29: INFO@extractor.py~35: File "2021-2022 Journal.csv" ingested with 730 rows.
+2026-09-23 14:41:29: INFO@core.py~62: 1498 total rows gathered.
