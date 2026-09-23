@@ -4,6 +4,8 @@ import logging
 import logging.handlers
 from datetime import date
 
+import pandas as pd
+
 logging.basicConfig( # root level, valid for all imports as well
 	handlers=[
 		logging.StreamHandler(), # will use sys.stderr as default
@@ -59,12 +61,15 @@ def main(args_list=None):
 	data = [] # holds cleaned data for all files
 	for filepath in file_queue:
 		data += Extractor.process(filepath)
-	log.info(f'{len(data)} total rows gathered.')
-	print(data[:20])
-	exit()
+	df = pd.DataFrame.from_records(data, columns=Extractor.FINAL_HEADERS, index='day')
+	df.index = pd.to_datetime(df.index, format='%Y-%m-%d', exact=True)
+	log.info(f'{df.shape[0]} total data rows gathered.')
+	# df.to_csv('export.csv', encoding='utf-8-sig')
+	# print(data[:5])
+	# print(df.head(5))
 
 	# Data processing
-	transformer = Transformer(Extractor.data)
+	transformer = Transformer(df)
 	if args.since or args.until:	transformer.filterdate(args.since, args.until)
 	if args.top_n:					transformer.get_top_n_results(args.top_n)
 	if args.group_by:				transformer.group(args.group_by).aggregate(args.agg_by)

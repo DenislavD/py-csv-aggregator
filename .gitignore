@@ -3,6 +3,7 @@
 __pycache__
 csv_aggregator/logs/myapp.log.*
 csv_aggregator/outputs/csv-agg*
+csv_aggregator/outputs/df_export.csv
 csv_aggregator/data/2017/*.csv
 csv_aggregator/data/2022
 csv_aggregator/data/2017-2018 Journal.csv

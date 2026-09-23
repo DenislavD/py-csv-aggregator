@@ -7,7 +7,8 @@ from collections import namedtuple
 log = logging.getLogger('csv_aggregator.extractor')
 
 class Extractor:
-	"""Parses a CSV file and returns a list of namedtuple data
+	"""Parses a CSV file and returns a list of namedtuple data.
+	Intentionally training on class- and static methods instead of instances
 	"""
 	FINAL_HEADERS = ['day', 'trades', 'result', 'note', 'begin'] # (hh:mm)
 	DataRow = namedtuple('DataRow', FINAL_HEADERS)
@@ -75,8 +76,8 @@ class Extractor:
 
 
 	# Data normalization methods
-	@classmethod
-	def parse_date(cls, datestr, last_known_date: date) -> date:
+	@staticmethod
+	def parse_date(datestr, last_known_date: date) -> date:
 		# target is datetime.strptime(datestr, '%d-%m-%Y'), but
 		# default is 31-02-17 , could be only 29-02 as well, so:
 		parts = datestr.split('-')
@@ -92,8 +93,8 @@ class Extractor:
 		return date(*map(int, parts))
 
 
-	@classmethod
-	def parse_time(cls, timestr) -> time | None:
+	@staticmethod
+	def parse_time(timestr) -> time | None:
 		parts = timestr.split(':')
 		if len(parts) < 2:
 			return None;

@@ -1,15 +1,15 @@
 import logging
 import csv
-from datetime import date
+from datetime import date, datetime as dt
 from itertools import groupby
-import pprint
+
+import pandas
 
 log = logging.getLogger('csv_aggregator.transformer')
 
 class Transformer:
-	def __init__(self, data):
-		self.rows = data
-		self.groups = []
+	def __init__(self, dataframe: pandas.DataFrame):
+		self.df = dataframe.sort_index()
 
 	def group(self, group_by) -> object:
 
@@ -58,10 +58,10 @@ class Transformer:
 			group['outputs'][f'results-{agg_by}'] = aggregator(group['data_series']['results'])
 
 
-	def filterdate(self, since, until):
-		since = since or date.min
-		until = until or date.max
-		self.rows = [row for row in self.rows if row.day >= since and row.day <= until]
+	def filterdate(self, since: date | None, until: date | None):
+		since = dt(since.year, since.month, since.day, 0, 0, 0) if since else dt.min
+		until = dt(until.year, until.month, until.day, 0, 0, 0) if until else dt.max
+		self.df = self.df[since:until]
 
 
 	def get_top_n_results(self, n):
