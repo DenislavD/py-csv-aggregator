@@ -1,4 +1,4 @@
-<h3>Project 2 — CSV Aggregator</h3>
+<h3>CSV Aggregator pipeline</h3>
 
 Purpose: aggregate data from many CSVs into summary outputs with configurable grouping and aggregations.</br>
 Sample files are provided in the csv_aggregator/data directory.

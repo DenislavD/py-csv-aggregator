@@ -59,19 +59,16 @@ class Transformer:
 
 
 	def filterdate(self, since: date | None, until: date | None):
+		# need to convert filter from date to datetime because it will be deprecated in pandas 4
 		since = dt(since.year, since.month, since.day, 0, 0, 0) if since else dt.min
-		until = dt(until.year, until.month, until.day, 0, 0, 0) if until else dt.max
+		until = dt(until.year, until.month, until.day, 23, 59, 59) if until else dt.max
 		self.df = self.df[since:until]
 
 
 	def get_top_n_results(self, n):
-		descending = n >= 0
-		self.rows = sorted(self.rows, key=lambda row: row.result, reverse=descending)[:abs(n)]
+		ascending = n < 0
+		self.df = self.df.sort_values(by='result', ascending=ascending).head(abs(n))
 
 
 	def _dump_raw(self):
-		with open('sample.csv', 'w',  newline='', encoding='utf-8-sig') as csv_file:
-			writer = csv.writer(csv_file)
-			writer.writerow('day, trades, result, note, begin'.split(', '))
-			writer.writerows(self.rows)
-
+		self.df.to_excel('sample.xlsx')
