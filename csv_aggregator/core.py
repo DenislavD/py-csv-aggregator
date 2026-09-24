@@ -63,16 +63,14 @@ def main(args_list=None):
 		data += Extractor.process(filepath)
 	df = pd.DataFrame.from_records(data, columns=Extractor.FINAL_HEADERS, index='day')
 	df.index = pd.to_datetime(df.index, format='%Y-%m-%d', exact=True)
+	df.begin = pd.to_datetime(df.begin, format='%H:%M:%S', exact=False, errors='coerce')
 	log.info(f'{df.shape[0]} total data rows gathered.')
-	# df.to_csv('export.csv', encoding='utf-8-sig')
-	# print(data[:5])
-	# print(df.head(5))
 
 	# Data processing
 	transformer = Transformer(df)
 	if args.since or args.until:	transformer.filterdate(args.since, args.until)
 	if args.top_n:					transformer.get_top_n_results(args.top_n)
-	if args.group_by:				transformer.group(args.group_by).aggregate(args.agg_by)
+	if args.group_by:				transformer.group(args.group_by, args.agg_by)
 
 	# Outputting data - simple json/pdf factory (functions)
 	output_filename = get_output_filename(args)
@@ -101,7 +99,7 @@ def get_file_queue(args_path) -> set:
 			norm_path = os.path.abspath(cur_path)
 		elif os.path.exists(os.path.join(scripts_dir, cur_path)):
 			norm_path = os.path.join(scripts_dir, cur_path)
-		else: # allow lazily not supplying data\ as folder
+		else: # allow lazily not supplying data\ as parent folder
 			norm_path = os.path.join(scripts_dir, 'data', cur_path)
 
 		if os.path.isfile(norm_path):

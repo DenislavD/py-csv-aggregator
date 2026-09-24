@@ -3,60 +3,36 @@ import csv
 from datetime import date, datetime as dt
 from itertools import groupby
 
-import pandas
+import pandas as pd
 
 log = logging.getLogger('csv_aggregator.transformer')
 
 class Transformer:
-	def __init__(self, dataframe: pandas.DataFrame):
+	def __init__(self, dataframe: pd.DataFrame):
 		self.df = dataframe.sort_index()
+		self.grouped_df = None
 
-	def group(self, group_by) -> object:
+	def group(self, group_by, agg_by):
+		def winlose(x: pd.Series):
+			coeff = x[x >= 0].count() / x.count()
+			return coeff # f'{coeff:.1%}' formatting shouldn't be here
 
-		def grouper(elem):
-			match group_by:
-				case 'year':
-					return str(elem.day.year)
-				case 'month':
-					return elem.day.strftime('%Y-%m')
-				case 'weekday':
-					return elem.day.strftime('%A') # .isoweekday()
+		match group_by:
+			case 'year': 	clause = self.df.index.year
+			case 'weekday': clause = self.df.index.day_name(locale=None)
+			case _: 		clause = self.df.index.strftime('%Y-%m')
 
-		groups = []
-		for key, group in groupby(sorted(self.rows, key=grouper), key=grouper):
-			# transpose number sequences for easier aggregation
-			trades, results, begins = zip(*[(row.trades, row.result, row.begin) for row in group])
-			groups.append({
-				'group': key,
-				'data_series': {
-					'trades': trades,
-					'results': results,
-					'begins': begins,
-				},
-				'outputs': {},
-				})
-		
-		self.groups = groups
-		return self
+		match agg_by:
+			case 'mean': 	aggfunc = 'mean'
+			case 'winlose': aggfunc = winlose
+			case _: 		aggfunc = 'sum'
 
-
-	def aggregate(self, agg_by):
-
-		def aggregator(results):
-			match agg_by:
-				case 'mean':
-					return round(sum(results) / len(results), 1)
-				case 'winlose':
-					return f'{len([*filter(lambda x: x >= 0, results)]) / len(results):.1%}'
-				case _:
-					return sum(results)
-
-		for group in self.groups:
-			group['outputs']['days-count'] = len(group['data_series']['trades'])
-			group['outputs']['trades-sum'] = sum(group['data_series']['trades'])
-			group['outputs']['trades-mean'] = round(group['outputs']['trades-sum'] / group['outputs']['days-count'], 1)
-			group['outputs'][f'results-{agg_by}'] = aggregator(group['data_series']['results'])
-
+		self.grouped_df = self.df.groupby(clause).agg({
+			'trades': 'sum',
+			'result': ['count', aggfunc],
+			'begin': 'mean',
+		})
+		self.grouped_df.index.name = group_by
 
 	def filterdate(self, since: date | None, until: date | None):
 		# need to convert filter from date to datetime because it will be deprecated in pandas 4
@@ -64,11 +40,9 @@ class Transformer:
 		until = dt(until.year, until.month, until.day, 23, 59, 59) if until else dt.max
 		self.df = self.df[since:until]
 
-
 	def get_top_n_results(self, n):
 		ascending = n < 0
 		self.df = self.df.sort_values(by='result', ascending=ascending).head(abs(n))
-
 
 	def _dump_raw(self):
 		self.df.to_excel('sample.xlsx')

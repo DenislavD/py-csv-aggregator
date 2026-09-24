@@ -81,8 +81,8 @@ class Extractor:
 		# target is datetime.strptime(datestr, '%d-%m-%Y'), but
 		# default is 31-02-17 , could be only 29-02 as well, so:
 		parts = datestr.split('-')
-		if len(parts) < 2 or len(parts) > 3: # fatal mismatch, use fallback
-			return last_known_date + timedelta(days=1)
+		if len(parts) < 2 or len(parts) > 3 or not ''.join(parts).isdecimal():
+			return last_known_date + timedelta(days=1) # fatal mismatch, use fallback
 		if len(parts) == 2:
 			parts.append(str(last_known_date.year)) # year is missing
 		if len(parts[2]) == 2:
