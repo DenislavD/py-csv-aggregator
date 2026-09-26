@@ -1,6 +1,5 @@
 import logging
 from datetime import date, datetime as dt
-from itertools import groupby
 
 import pandas as pd
 
@@ -19,7 +18,7 @@ class Transformer:
 
 		self.grouped_df = None
 
-	def group(self, group_by, agg_by):
+	def group(self, group_by: str, agg_by: str='sum'):
 		def winlose(x: pd.Series):
 			coeff = x[x >= 0].count() / x.count()
 			return f'{coeff:.1%}' # should formatting be here?
@@ -46,8 +45,6 @@ class Transformer:
 		self.grouped_df.columns = [ f"{col.capitalize()} {stat.capitalize()}" # flatten it
 										for col, stat in self.grouped_df.columns ]
 		self.grouped_df.index.name = group_by # update row index naming
-		# print(self.df)
-		# exit()
 
 	def filterdate(self, since: date | None, until: date | None):
 		# need to convert filter from date to datetime because it will be deprecated in pandas 4
@@ -55,7 +52,7 @@ class Transformer:
 		until = dt(until.year, until.month, until.day, 23, 59, 59) if until else dt.max
 		self.df = self.df[since:until]
 
-	def get_top_n_results(self, n):
+	def get_top_n_results(self, n: int):
 		ascending = n < 0
 		self.df = self.df.sort_values(by='result', ascending=ascending).head(abs(n))
 
