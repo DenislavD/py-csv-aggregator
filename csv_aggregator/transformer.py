@@ -1,21 +1,28 @@
 import logging
-import csv
 from datetime import date, datetime as dt
 from itertools import groupby
 
 import pandas as pd
 
+from .extractor import Extractor
+
 log = logging.getLogger('csv_aggregator.transformer')
 
 class Transformer:
-	def __init__(self, dataframe: pd.DataFrame):
-		self.df = dataframe.sort_index()
+	"""Transforms (sorts, filters, groups, aggregates) the raw data."""
+
+	def __init__(self, data: list[Extractor.DataRow]):
+		self.df = pd.DataFrame.from_records(data, columns=Extractor.FINAL_HEADERS, index='day')
+		self.df.index = pd.to_datetime(self.df.index, format='%Y-%m-%d', exact=True)
+		self.df.begin = pd.to_datetime(self.df.begin, format='%H:%M:%S', exact=False, errors='coerce')
+		self.df.sort_index(inplace=True)
+
 		self.grouped_df = None
 
 	def group(self, group_by, agg_by):
 		def winlose(x: pd.Series):
 			coeff = x[x >= 0].count() / x.count()
-			return coeff # f'{coeff:.1%}' formatting shouldn't be here
+			return f'{coeff:.1%}' # should formatting be here?
 
 		match group_by:
 			case 'year': 	clause = self.df.index.year
@@ -32,7 +39,15 @@ class Transformer:
 			'result': ['count', aggfunc],
 			'begin': 'mean',
 		})
-		self.grouped_df.index.name = group_by
+
+		# tidy up groups format
+		self.grouped_df['begin', 'mean'] = self.grouped_df['begin', 'mean'].dt.strftime('%H:%M')
+		# ColumnIndex now looks like: MultiIndex([('trades', 'sum'), ('result', 'mean'), ...
+		self.grouped_df.columns = [ f"{col.capitalize()} {stat.capitalize()}" # flatten it
+										for col, stat in self.grouped_df.columns ]
+		self.grouped_df.index.name = group_by # update row index naming
+		# print(self.df)
+		# exit()
 
 	def filterdate(self, since: date | None, until: date | None):
 		# need to convert filter from date to datetime because it will be deprecated in pandas 4

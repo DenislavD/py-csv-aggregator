@@ -7,8 +7,39 @@ import os
 from datetime import datetime
 from functools import partial
 
+import pandas as pd
+
 PACKAGE_DIR = os.path.dirname(__file__)
 FONTS_DIR = os.path.join(PACKAGE_DIR, 'fonts')
+MAX_OUTPUT_ROWS = 100
+
+def get_csv_in_dir(directory) -> list:
+	files = []
+	for root, *_ in os.walk(directory):
+		for filename in os.listdir(root):
+			filepath = os.path.join(root, filename)
+			if os.path.isfile(filepath) and filename.lower().endswith('.csv'):
+				files.append(filepath)
+	return files
+
+
+def get_file_queue(args_path) -> set:
+	file_queue = set()
+	for cur_path in args_path:
+		scripts_dir = os.path.dirname(__file__)
+
+		if os.path.exists(os.path.abspath(cur_path)):
+			norm_path = os.path.abspath(cur_path)
+		elif os.path.exists(os.path.join(scripts_dir, cur_path)):
+			norm_path = os.path.join(scripts_dir, cur_path)
+		else: # allow lazily not supplying data\ as parent folder
+			norm_path = os.path.join(scripts_dir, 'data', cur_path)
+
+		if os.path.isfile(norm_path):
+			file_queue.add(norm_path)
+		elif os.path.isdir(norm_path):
+			file_queue.update(get_csv_in_dir(norm_path))
+	return file_queue
 
 
 # factory creator
@@ -20,39 +51,37 @@ def get_serializer(format, output_filename):
 	return partial(func, output_filename=output_filename)
 
 def get_output_filename(args) -> str:
-	base_name = f'Csv-agg {datetime.now().strftime("%Y%m%d_%H%M%S") } '
+	base_name = f'Trading Summary {datetime.now().strftime("%Y%m%d_%H%M%S")}'
 	base_path = os.path.join(PACKAGE_DIR, 'outputs', base_name)
 
 	if args.since or args.until:
-		base_path += f'{args.since or "min"}--{args.until or "max"}'
+		base_path += f' {args.since or "min"}--{args.until or "max"}'
 	if args.top_n:
-		base_path += f'top{args.top_n}'
+		base_path += f' top{args.top_n}'
 	if args.group_by:
-		base_path += f'group-by-{args.group_by} agg-by-{args.agg_by}'
+		base_path += f' group-by-{args.group_by} agg-by-{args.agg_by}'
 	return base_path
 
 
 # implementations/products
-def _serialize_json(groups, rows, top_n, *, output_filename):
-	output_groups = []
-	output_rows = []
-	if groups:
-		output_groups = [{'group': item['group'], 'data': item['outputs']} for item in groups]
-	if top_n or len(rows) <= 50:
-		for row in rows:
-			output_rows.append({
-				'day': row.day.strftime('%Y-%m-%d'),
-				'trades': row.trades,
-				'result': row.result,
-				'note': row.note
-			})
-	output = [output_groups, output_rows]
+def _serialize_json(groups: pd.DataFrame | None, rows: pd.DataFrame, top_n: int, *, output_filename):
+	output = {}
+	if groups is not None:
+		json_string = groups.to_json(orient='index')
+		output['groups'] = json.loads(json_string)
+	if top_n or rows.shape[0] <= MAX_OUTPUT_ROWS:
+		rows.index = rows.index.strftime('%Y-%m-%d') # format row index
+		rows = rows[~rows.index.duplicated()] # remove duplicated days (shouldn't be any)
+		rows.begin = rows.begin.dt.strftime('%H:%M') # format begin time
+		json_string = rows.to_json(orient='index')
+		output['rows'] = json.loads(json_string)
+
 	print(json.dumps(output, indent=4))
 	with open(f'{output_filename}.json', 'w') as file:
 		json.dump(output, file)
 
 
-def _serialize_pdf(groups, rows, top_n, *, output_filename):
+def _serialize_pdf(groups: pd.DataFrame | None, rows: pd.DataFrame, top_n: int, *, output_filename):
 	if groups:
 		keys = groups[0]['outputs'].keys()
 		output_groups = [['Group', *map(lambda x: string.capwords(x.replace('-', ' '), ' '), keys)]]
@@ -60,7 +89,7 @@ def _serialize_pdf(groups, rows, top_n, *, output_filename):
 			output_groups.append(map(str, [item['group'], *item['outputs'].values()] ))
 
 	output_rows = None
-	if top_n or len(rows) <= 50:
+	if top_n or len(rows) <= MAX_OUTPUT_ROWS:
 		output_rows = [['Day', 'Result', 'Trades', 'Note']]
 		for row in rows:
 			output_rows.append([row.day.strftime('%Y-%m-%d'), row.result, row.trades, row.note])

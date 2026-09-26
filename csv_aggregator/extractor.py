@@ -10,7 +10,7 @@ class Extractor:
 	"""Parses a CSV file and returns a list of namedtuple data.
 	Intentionally training on class- and static methods instead of instances
 	"""
-	FINAL_HEADERS = ['day', 'trades', 'result', 'note', 'begin'] # (hh:mm)
+	FINAL_HEADERS = ('day', 'trades', 'result', 'note', 'begin') # (hh:mm)
 	DataRow = namedtuple('DataRow', FINAL_HEADERS)
 
 	@classmethod
