@@ -1,15 +1,20 @@
-<h3>CSV Aggregator pipeline</h3>
+<h3>CSV Aggregator Data pipeline</h3>
 
 Purpose: aggregate data from many CSVs into summary outputs with configurable grouping and aggregations.</br>
 Sample files are provided in the csv_aggregator/data directory.
+
+From:  
+![From](https://raw.githubusercontent.com/DenislavD/py-csv-aggregator/refs/heads/main/csv_aggregator/data/_from.jpg "From CSVs..")
+To:  
+![To](https://raw.githubusercontent.com/DenislavD/py-csv-aggregator/refs/heads/main/csv_aggregator/data/_to1.png "To report")
 
 </br>
 <h5>Features:</h5>
 <li>Accept input directory or file list; recursively find CSV files.</li>
 <li>CLI options: --group-by (columns), --agg (sum, mean, count), --out-format (csv/json),
 top-n (5/-100 top results), --since/--until (date filters).</li>
-<li>Robust parsing: handle different delimiters, header mismatches, missing values.</li>
-<li>Uses Pandas for DataFrame operations.</li>
+<li>Robust parsing: find header row, handle different delimiters, header mismatches, missing values.</li>
+<li>Uses Pandas for numPy array-based DataFrame operations.</li>
 <li>Logging: operations logged (files processed, rows aggregated, errors).</li>
 <li>Packaging: installable with an entry point csv-agg.</li>
 <li>Tests: unit tests for parsing, grouping, and edge cases.</li>

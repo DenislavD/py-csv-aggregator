@@ -1,11 +1,8 @@
-import logging
 from datetime import date, datetime as dt
 
 import pandas as pd
 
 from .extractor import Extractor
-
-log = logging.getLogger('csv_aggregator.transformer')
 
 class Transformer:
 	"""Transforms (sorts, filters, groups, aggregates) the raw data."""
@@ -34,8 +31,8 @@ class Transformer:
 			case _: 		aggfunc = 'sum'
 
 		self.grouped_df = self.df.groupby(clause).agg({
-			'trades': 'sum',
-			'result': ['count', aggfunc],
+			'trades': ['count', 'sum'],
+			'result': aggfunc,
 			'begin': 'mean',
 		})
 
@@ -44,7 +41,8 @@ class Transformer:
 		# ColumnIndex now looks like: MultiIndex([('trades', 'sum'), ('result', 'mean'), ...
 		self.grouped_df.columns = [ f"{col.capitalize()} {stat.capitalize()}" # flatten it
 										for col, stat in self.grouped_df.columns ]
-		self.grouped_df.index.name = group_by # update row index naming
+		self.grouped_df.columns.values[0] = 'Days Traded'
+		self.grouped_df.index.name = group_by.capitalize() # update row index naming
 
 	def filterdate(self, since: date | None, until: date | None):
 		# need to convert filter from date to datetime because it will be deprecated in pandas 4

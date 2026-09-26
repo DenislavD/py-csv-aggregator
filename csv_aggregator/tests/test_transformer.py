@@ -21,7 +21,7 @@ def transformer(scope='module'):
 
 def test_group_year_sorted(transformer):
 	transformer.group('year')
-	assert all(transformer.grouped_df.index == (2015, 2017, 2027)) # compares each array item
+	assert transformer.grouped_df.index.tolist() == [2015, 2017, 2027]
 
 def test_group_month_sorted(transformer):
 	transformer.group('month')
@@ -36,8 +36,8 @@ def test_group_weekday(transformer):
 def test_aggregate_winlose(transformer):
 	transformer.group('year', 'winlose')
 
-	test_group = transformer.grouped_df.values[0] # [6 5 '80.0%' nan]
-	assert test_group[1] == 5 and test_group[2] == '80.0%'
+	test_group = transformer.grouped_df.values[0] # [5 6 '80.0%' nan]
+	assert test_group[1] == 6 and test_group[2] == '80.0%'
 
 def test_filter_empty(transformer):
 	transformer.filterdate(None, None)
@@ -48,7 +48,7 @@ def test_filterdate(transformer):
 	until = date(2018, 1, 1)
 	transformer.filterdate(since, until) # should take days (2017, 6, 3) and (2017, 6, 30)
 	assert transformer.df.shape[0] == 2
-	assert all(transformer.df.iloc[..., :2] == [[0, 0], [1, -15]])
+	assert all(transformer.df.iloc[..., :2] == [[0, 0], [1, -15]]) # day is the index, skip the 'note'
 
 def test_filter_since(transformer):
 	since = date(2027, 6, 2)
@@ -63,4 +63,4 @@ def test_filter_until(transformer):
 def test_get_top_n_results(transformer):
 	transformer.get_top_n_results(-4)
 	assert transformer.df.shape[0] == 4
-	assert all(transformer.df.values[0][:2] == [1, -15])
+	assert all(transformer.df.values[0][:2] == [1, -15]) # can't use .tolist(), because it's a DF, not Series

@@ -1,8 +1,6 @@
 from fpdf import FPDF
 from fpdf.fonts import FontFace
-import logging
 import json
-import string
 import os
 from datetime import datetime
 from functools import partial
@@ -42,14 +40,6 @@ def get_file_queue(args_path) -> set:
 	return file_queue
 
 
-# factory creator
-def get_serializer(format, output_filename):
-	match format:
-		case 'json': func = _serialize_json
-		case 'pdf':  func = _serialize_pdf
-		case _: 	 func = _serialize_json
-	return partial(func, output_filename=output_filename)
-
 def get_output_filename(args) -> str:
 	base_name = f'Trading Summary {datetime.now().strftime("%Y%m%d_%H%M%S")}'
 	base_path = os.path.join(PACKAGE_DIR, 'outputs', base_name)
@@ -63,12 +53,22 @@ def get_output_filename(args) -> str:
 	return base_path
 
 
+# factory creator
+def get_serializer(format, output_filename):
+	match format:
+		case 'json': func = _serialize_json
+		case 'pdf':  func = _serialize_pdf
+		case _: 	 func = _serialize_json
+	return partial(func, output_filename=output_filename)
+
 # implementations/products
 def _serialize_json(groups: pd.DataFrame | None, rows: pd.DataFrame, top_n: int, *, output_filename):
 	output = {}
+
 	if groups is not None:
 		json_string = groups.to_json(orient='index')
 		output['groups'] = json.loads(json_string)
+
 	if top_n or rows.shape[0] <= MAX_OUTPUT_ROWS:
 		rows.index = rows.index.strftime('%Y-%m-%d') # format row index
 		rows = rows[~rows.index.duplicated()] # remove duplicated days (shouldn't be any)
@@ -82,19 +82,7 @@ def _serialize_json(groups: pd.DataFrame | None, rows: pd.DataFrame, top_n: int,
 
 
 def _serialize_pdf(groups: pd.DataFrame | None, rows: pd.DataFrame, top_n: int, *, output_filename):
-	if groups:
-		keys = groups[0]['outputs'].keys()
-		output_groups = [['Group', *map(lambda x: string.capwords(x.replace('-', ' '), ' '), keys)]]
-		for item in groups:
-			output_groups.append(map(str, [item['group'], *item['outputs'].values()] ))
-
-	output_rows = None
-	if top_n or len(rows) <= MAX_OUTPUT_ROWS:
-		output_rows = [['Day', 'Result', 'Trades', 'Note']]
-		for row in rows:
-			output_rows.append([row.day.strftime('%Y-%m-%d'), row.result, row.trades, row.note])
-
-	# Data serialized, start fpdf2 output
+	# Start fpdf2 output
 	pdf = PDFWithBackground(orientation='landscape')
 	pdf.add_page()
 	pdf.add_font('Tahoma', '', os.path.join(FONTS_DIR, 'Tahoma.ttf'), uni=True)
@@ -105,33 +93,32 @@ def _serialize_pdf(groups: pd.DataFrame | None, rows: pd.DataFrame, top_n: int, 
 	pdf.cell(text='Trading Summary report', center=True)
 	pdf.ln(25)
 
-	if groups:
+	if groups is not None:
 		pdf.set_font('Tahoma', 'B', size=16)
 		pdf.cell(text='Aggregated data', center=True)
 		pdf.ln(10) # adds vertical space
-
 		pdf.set_font('Tahoma', size=12)
-		with pdf.table(text_align='CENTER', headings_style=headings_style) as table:
-			for data_row in output_groups:
-				row = table.row()
-				for datum in data_row:
-					row.cell(datum)
+
+		groups = groups.reset_index().fillna('-').astype(str)
+		table_data = [groups.columns.tolist()] + groups.values.tolist()
+		with pdf.table(table_data, text_align='CENTER', headings_style=headings_style):
+			...
 		pdf.ln(30)
 
-	if output_rows:
+	if top_n or len(rows) <= MAX_OUTPUT_ROWS:
 		pdf.set_font('Tahoma', 'B', size=16)
 		pdf.cell(text='Daily data', center=True)
 		pdf.ln(10)
-
 		pdf.set_font('Tahoma', size=12)
-		with pdf.table(col_widths=(10, 10, 10, 70), headings_style=headings_style, \
-			text_align=("CENTER", "CENTER", "CENTER", "LEFT")) as table2:
-			for data_row in output_rows:
-				row = table2.row()
-				for datum in data_row:
-					row.cell(str(datum))
 
-	pdf.ln(20)
+		rows.begin = rows.begin.dt.strftime('%H:%M') # format begin time
+		rows = rows.reset_index().fillna('-').astype(str)
+		table_data = [rows.columns.map(str.capitalize).tolist()] + rows.values.tolist()
+		with pdf.table(table_data, col_widths=(10, 10, 10, 60, 10), headings_style=headings_style,
+			text_align=("CENTER", "CENTER", "CENTER", "LEFT", "CENTER")):
+			...
+		pdf.ln(20)
+
 	pdf.cell(text='--- REPORT END ---', center=True)
 	pdf.output(f'{output_filename}.pdf')
 

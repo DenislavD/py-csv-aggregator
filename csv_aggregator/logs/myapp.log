@@ -1,15 +1,47 @@
-2026-09-24 16:59:18: INFO@core.py~50: Started program.
-2026-09-24 16:59:18: INFO@extractor.py~36: File "2017-06 Journal.csv" ingested with 30 rows.
-2026-09-24 16:59:18: INFO@core.py~66: 22 total data rows gathered.
-2026-09-24 19:48:53: INFO@core.py~50: Started program.
-2026-09-24 19:48:53: INFO@extractor.py~36: File "2017-2018 Journal.csv" ingested with 431 rows.
-2026-09-24 19:48:53: INFO@extractor.py~36: File "2017-09 Journal.csv" ingested with 27 rows.
-2026-09-24 19:48:53: INFO@extractor.py~36: File "2017-04-05 Journal.csv" ingested with 50 rows.
-2026-09-24 19:48:53: INFO@extractor.py~36: File "2017-10 Journal.csv" ingested with 30 rows.
-2026-09-24 19:48:53: INFO@extractor.py~36: File "2017-08 Journal date.csv" ingested with 31 rows.
-2026-09-24 19:48:53: INFO@extractor.py~36: File "2017-06 Journal.csv" ingested with 30 rows.
-2026-09-24 19:48:53: INFO@extractor.py~36: File "2021-2022 Journal.csv" ingested with 730 rows.
-2026-09-24 19:48:53: INFO@extractor.py~36: File "2017-07 Journal.csv" ingested with 29 rows.
-2026-09-24 19:48:53: INFO@extractor.py~36: File "2019-2020 Journal.csv" ingested with 681 rows.
-2026-09-24 19:48:53: INFO@extractor.py~36: File "INFO 2023.csv" ingested with 356 rows.
-2026-09-24 19:48:53: INFO@core.py~67: 1498 total data rows gathered.
+2026-09-26 19:15:13: INFO@core.py~50: Started program.
+2026-09-26 19:15:13: INFO@extractor.py~36: File "2017-06 Journal.csv" ingested with 30 rows.
+2026-09-26 19:15:13: INFO@core.py~64: 22 total data rows gathered.
+2026-09-26 19:15:13: INFO@core.py~77: Program completed with outputs saved to ...\csv_aggregator\outputs\Trading Summary 20260926_191513 2017-06-01--2017-06-30 group-by-weekday agg-by-sum.pdf .
+
+2026-09-26 19:21:01: INFO@core.py~50: Started program.
+2026-09-26 19:21:01: INFO@extractor.py~36: File "2021-2022 Journal.csv" ingested with 730 rows.
+2026-09-26 19:21:01: INFO@extractor.py~36: File "2017-04-05 Journal.csv" ingested with 50 rows.
+2026-09-26 19:21:01: INFO@extractor.py~36: File "2017-09 Journal.csv" ingested with 27 rows.
+2026-09-26 19:21:01: INFO@extractor.py~36: File "2017-06 Journal.csv" ingested with 30 rows.
+2026-09-26 19:21:01: INFO@extractor.py~36: File "2017-08 Journal date.csv" ingested with 31 rows.
+2026-09-26 19:21:01: INFO@extractor.py~36: File "2017-07 Journal.csv" ingested with 29 rows.
+2026-09-26 19:21:01: INFO@extractor.py~36: File "2017-10 Journal.csv" ingested with 30 rows.
+2026-09-26 19:21:01: INFO@extractor.py~36: File "2017-2018 Journal.csv" ingested with 431 rows.
+2026-09-26 19:21:01: INFO@extractor.py~36: File "2019-2020 Journal.csv" ingested with 681 rows.
+2026-09-26 19:21:01: INFO@extractor.py~36: File "INFO 2023.csv" ingested with 356 rows.
+2026-09-26 19:21:01: INFO@core.py~64: 1498 total data rows gathered.
+2026-09-26 19:21:01: INFO@core.py~77: Program completed with outputs saved to ...\csv_aggregator\outputs\Trading Summary 20260926_192101 group-by-month agg-by-sum.json .
+
+2026-09-26 19:36:49: INFO@core.py~50: Started program.
+2026-09-26 19:36:49: INFO@extractor.py~36: File "INFO 2023.csv" ingested with 356 rows.
+2026-09-26 19:36:49: INFO@extractor.py~36: File "2017-06 Journal.csv" ingested with 30 rows.
+2026-09-26 19:36:49: INFO@extractor.py~36: File "2019-2020 Journal.csv" ingested with 681 rows.
+2026-09-26 19:36:49: INFO@extractor.py~36: File "2017-10 Journal.csv" ingested with 30 rows.
+2026-09-26 19:36:49: INFO@extractor.py~36: File "2017-08 Journal date.csv" ingested with 31 rows.
+2026-09-26 19:36:49: INFO@extractor.py~36: File "2017-04-05 Journal.csv" ingested with 50 rows.
+2026-09-26 19:36:49: INFO@extractor.py~36: File "2021-2022 Journal.csv" ingested with 730 rows.
+2026-09-26 19:36:49: INFO@extractor.py~36: File "2017-2018 Journal.csv" ingested with 431 rows.
+2026-09-26 19:36:49: INFO@extractor.py~36: File "2017-09 Journal.csv" ingested with 27 rows.
+2026-09-26 19:36:49: INFO@extractor.py~36: File "2017-07 Journal.csv" ingested with 29 rows.
+2026-09-26 19:36:49: INFO@core.py~64: 1498 total data rows gathered.
+2026-09-26 19:36:49: INFO@core.py~77: Program completed with outputs saved to ...\csv_aggregator\outputs\Trading Summary 20260926_193649 group-by-weekday agg-by-winlose.pdf .
+
+2026-09-26 19:46:07: INFO@core.py~50: Started program.
+2026-09-26 19:46:07: INFO@extractor.py~36: File "2021-2022 Journal.csv" ingested with 730 rows.
+2026-09-26 19:46:07: INFO@extractor.py~36: File "2017-10 Journal.csv" ingested with 30 rows.
+2026-09-26 19:46:07: INFO@extractor.py~36: File "2019-2020 Journal.csv" ingested with 681 rows.
+2026-09-26 19:46:07: INFO@extractor.py~36: File "2017-09 Journal.csv" ingested with 27 rows.
+2026-09-26 19:46:07: INFO@extractor.py~36: File "2017-07 Journal.csv" ingested with 29 rows.
+2026-09-26 19:46:07: INFO@extractor.py~36: File "2017-04-05 Journal.csv" ingested with 50 rows.
+2026-09-26 19:46:07: INFO@extractor.py~36: File "2017-08 Journal date.csv" ingested with 31 rows.
+2026-09-26 19:46:07: INFO@extractor.py~36: File "INFO 2023.csv" ingested with 356 rows.
+2026-09-26 19:46:07: INFO@extractor.py~36: File "2017-2018 Journal.csv" ingested with 431 rows.
+2026-09-26 19:46:07: INFO@extractor.py~36: File "2017-06 Journal.csv" ingested with 30 rows.
+2026-09-26 19:46:07: INFO@core.py~64: 1498 total data rows gathered.
+2026-09-26 19:46:07: INFO@core.py~77: Program completed with outputs saved to ...\csv_aggregator\outputs\Trading Summary 20260926_194607 2017-05-01--2017-12-31 top5 group-by-month agg-by-sum.pdf .
+
